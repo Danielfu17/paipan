@@ -191,7 +191,7 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
  #tr-online{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:18px;align-items:start}
  #tr-online>.castmsg,#tr-online>#tr-shuffle,#tr-online>p{grid-column:1/3}
  #tr-online>#tr-deck{grid-column:1;grid-row:2}
- #tr-online>#tr-slots{grid-column:2;grid-row:2;position:sticky;top:12px;padding-top:14px}
+ #tr-online>#tr-slots{grid-column:2;grid-row:2;position:sticky;top:12px;padding-top:14px;width:var(--sw,216px)}
  #tr-online .tgrid.mini{margin:0}
 }
 .tgrid.mini{gap:6px;margin:6px auto 2px}
@@ -246,6 +246,28 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
 .qhint{margin-top:8px;padding:10px 14px;border-radius:12px;background:var(--soft);font-size:14.5px}
 .opt em{font-style:normal;font-size:12px;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:1px 9px;margin-left:8px;font-weight:600}
 .opt i{display:block;font-style:normal;color:var(--accent);font-size:13.5px;margin-top:2px}
+.arcwrap{position:relative}
+.arc{position:relative;overflow:hidden;touch-action:pan-y;cursor:grab;user-select:none;-webkit-user-select:none;outline:none;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.arc:focus-visible{box-shadow:inset 0 0 0 2px var(--accent);border-radius:12px}
+.arc.dragging{cursor:grabbing}
+.ac{position:absolute;left:50%;top:0;width:var(--cw);aspect-ratio:100/166;transform-origin:50% 0;padding:0;border:0;background:none;will-change:transform;cursor:inherit}
+.acard{display:block;position:relative;width:100%;height:100%;border-radius:6px;border:1px solid #dcb561;background:#0e1122 repeating-linear-gradient(45deg,transparent 0 5px,rgba(220,181,97,.16) 5px 6px);box-shadow:-4px 0 7px -4px rgba(0,0,0,.7);transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .2s,opacity .25s}
+.acard::after{content:"\2726";position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-start;padding-left:calc(var(--cw)*.1);color:#dcb561;font-size:calc(var(--cw)*.22);opacity:.9}
+@media (hover:hover){
+ .arc:not(.dragging) .ac:not(.on):hover{z-index:5;cursor:pointer}
+ .arc:not(.dragging) .ac:not(.on):hover .acard{transform:translateY(-22px) scale(1.08);box-shadow:0 0 0 1px #dcb561,0 14px 28px -6px rgba(220,181,97,.75)}
+}
+.arc:not(.dragging) .ac:not(.on):active .acard{transform:translateY(-12px) scale(1.04)}
+.ac.on{pointer-events:none}
+.ac.on .acard{opacity:0;transform:translateY(-36px) scale(1.15)}
+.arc.done{pointer-events:none}
+.arc.done .ac:not(.on) .acard{opacity:.18}
+.arcnav{position:absolute;top:46%;transform:translateY(-50%);z-index:6;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:22px;line-height:1;padding:0 0 3px;opacity:.9}
+.arcnav:hover{border-color:var(--accent)}
+.arcnav.l{left:-6px}.arcnav.r{right:-6px}
+@media (hover:none){.arcnav{display:none}}
+.arcbar{position:relative;height:4px;border-radius:4px;background:var(--line);margin:10px auto 0;max-width:200px;overflow:hidden}
+.arcbar i{position:absolute;top:0;height:100%;border-radius:4px;background:var(--accent)}
 /* 白話說明抽屜 */
 #sheet{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:flex-end;justify-content:center;z-index:20}
 #sheet.on{display:flex}
@@ -9951,6 +9973,7 @@ function trEnter(){
   tr.man=sp.pos.map(()=>({i:'',rev:false}));drawTrMan();
 }
 function trSlots(){const sp=SP[tr.spread],k=tr.picks.length,mw={1:64,3:216,4:256}[sp.cols];
+  $('#tr-slots').style.setProperty('--sw',mw+'px');
   $('#tr-slots').innerHTML=`<div class="tgrid mini" style="grid-template-columns:repeat(${sp.cols},minmax(0,1fr));max-width:${mw}px">${sp.pos.map((p,i)=>{const cross=sp.cross===i;
     return `<div class="tcell ${cross?'crossc':''}" style="grid-column:${p[2]};grid-row:${p[3]}"><span class="tslot ${i<k?'got':i===k&&tr.deck?'next':''} ${i===k-1?'new':''}" data-i="${i}">${i<k?T.back():`<b>${i+1}</b>`}</span>${cross?'':`<div class="tcap">${p[0]}</div>`}</div>`}).join('')}</div>`}
 function trFly(from,i){const to=$(`#tr-slots [data-i="${i}"]`);if(!to||!from.animate)return;
@@ -9965,16 +9988,70 @@ $('#tr-shuffle').onclick=async()=>{
   const st=$('#tr-stack');st.classList.remove('shuf');void st.offsetWidth;st.classList.add('shuf');$('#tr-msg').innerHTML='<span class="hint">洗牌中…</span>';
   await sleep(1200);
   tr.deck=T.deal($('#tr-rev').checked);tr.picks=[];tr.busy=false;$('#tr-shuffle').disabled=false;$('#tr-shuffle').hidden=true;
-  $('#tr-deck').innerHTML=`<div class="fan">${tr.deck.map((_,k)=>`<button type="button" class="fb" data-k="${k}" style="animation-delay:${k*9}ms" aria-label="第 ${k+1} 張牌"></button>`).join('')}</div>`;
+  arcBuild();
   trMsg();trSlots();
 };
+/* 扇形牌堆：左右拖曳、慣性、滾輪、按鈕、鍵盤 */
+const arc={el:null,cards:[],off:38.5,spread:0,v:0,raf:0,drag:null,moved:false,R:660,s:28,cw:68,maxTh:1,vis:20};
+function arcSize(){
+  const W=arc.el.clientWidth,m=W<480;arc.cw=m?56:68;arc.s=m?26:28;arc.R=m?440:660;
+  arc.maxTh=Math.asin(Math.min(1,(W/2+arc.cw)/arc.R));
+  const edge=Math.asin(Math.min(1,(W/2)/arc.R));
+  arc.el.style.height=Math.round(arc.R*(1-Math.cos(edge))+arc.cw*1.66+46)+'px';
+  arc.el.style.setProperty('--cw',arc.cw+'px');arc.vis=2*edge*arc.R/arc.s;
+}
+function arcDraw(){
+  const step=arc.s/arc.R;
+  for(let i=0;i<arc.cards.length;i++){const el=arc.cards[i],th=(i-arc.off)*arc.spread*step;
+    if(Math.abs(th)>arc.maxTh){if(el.style.display!=='none')el.style.display='none';continue}
+    if(el.style.display)el.style.display='';
+    el.style.transform=`translate(${(arc.R*Math.sin(th)-arc.cw/2).toFixed(1)}px,${(arc.R*(1-Math.cos(th))+30).toFixed(1)}px) rotate(${th.toFixed(4)}rad)`}
+  const t=$('#tr-arcthumb');if(t){const f=Math.min(1,arc.vis/78);t.style.width=(f*100)+'%';t.style.left=(Math.max(0,Math.min(1,arc.off/77))*(1-f)*100)+'%'}
+}
+function arcGlide(){
+  cancelAnimationFrame(arc.raf);let last=performance.now();
+  const tick=now=>{const dt=Math.min(40,now-last);last=now;if(arc.drag||!arc.el.isConnected)return;
+    arc.off+=arc.v*dt;arc.v*=Math.pow(0.9965,dt);
+    if(arc.off<0){arc.off+=(0-arc.off)*Math.min(1,dt*0.012);arc.v*=0.7}else if(arc.off>77){arc.off+=(77-arc.off)*Math.min(1,dt*0.012);arc.v*=0.7}
+    arcDraw();
+    if(Math.abs(arc.v)>0.0012||arc.off<-0.02||arc.off>77.02)arc.raf=requestAnimationFrame(tick)};
+  arc.raf=requestAnimationFrame(tick);
+}
+function arcTo(target){
+  cancelAnimationFrame(arc.raf);arc.v=0;const a=arc.off,t0=performance.now(),el=arc.el;
+  const f=now=>{if(!el.isConnected||arc.drag)return;const p=Math.min(1,(now-t0)/380);arc.off=a+(target-a)*(1-Math.pow(1-p,3));arcDraw();if(p<1)arc.raf=requestAnimationFrame(f)};
+  arc.raf=requestAnimationFrame(f);
+  setTimeout(()=>{if(el.isConnected&&!arc.drag&&Math.abs(arc.off-target)>0.01&&arc.v===0){arc.off=target;arcDraw()}},650);
+}
+const arcClamp=o=>Math.max(0,Math.min(77,o));
+function arcBuild(){
+  $('#tr-deck').innerHTML=`<div class="arcwrap"><button type="button" class="arcnav l" aria-label="往左看更多牌">‹</button><div class="arc" id="tr-arc" tabindex="0" aria-label="牌堆：左右撥動後點選一張牌">${tr.deck.map((_,k)=>`<button type="button" class="ac" data-k="${k}" tabindex="-1" aria-label="第 ${k+1} 張牌"><span class="acard"></span></button>`).join('')}</div><button type="button" class="arcnav r" aria-label="往右看更多牌">›</button></div><div class="arcbar" aria-hidden="true"><i id="tr-arcthumb"></i></div><p class="hint center" id="tr-archint" style="margin:8px 0 0">← 左右撥動牌堆，憑直覺點一張 →</p>`;
+  const el=arc.el=$('#tr-arc');arc.cards=$$('#tr-arc .ac');arc.off=38.5;arc.spread=0;arc.v=0;arc.drag=null;arc.moved=false;
+  arcSize();arcDraw();
+  const t0=performance.now(),open=now=>{if(!el.isConnected)return;const p=Math.min(1,(now-t0)/900);arc.spread=1-Math.pow(1-p,3);arcDraw();if(p<1)requestAnimationFrame(open)};
+  requestAnimationFrame(open);setTimeout(()=>{if(el.isConnected&&arc.spread<1){arc.spread=1;arcDraw()}},1300);
+  el.onpointerdown=e=>{if(e.button)return;const now=performance.now();arc.drag={x:e.clientX,off:arc.off,lx:e.clientX,lt:now,id:e.pointerId};arc.moved=false;arc.v=0;cancelAnimationFrame(arc.raf)};
+  el.onpointermove=e=>{const d=arc.drag;if(!d||e.pointerId!==d.id)return;const dx=e.clientX-d.x;
+    if(!arc.moved){if(Math.abs(dx)<7)return;arc.moved=true;try{el.setPointerCapture(e.pointerId)}catch(_){}el.classList.add('dragging');const h=$('#tr-archint');if(h)h.style.visibility='hidden'}
+    let o=d.off-dx/arc.s;if(o<0)o*=0.35;else if(o>77)o=77+(o-77)*0.35;arc.off=o;
+    const now=performance.now(),dt=now-d.lt;if(dt>0)arc.v=arc.v*0.55+(-(e.clientX-d.lx)/arc.s/dt)*0.45;d.lx=e.clientX;d.lt=now;arcDraw()};
+  const end=()=>{const d=arc.drag;if(!d)return;arc.drag=null;el.classList.remove('dragging');if(arc.moved){if(performance.now()-d.lt>90)arc.v=0;arcGlide()}};
+  el.onpointerup=end;el.onpointercancel=end;
+  el.addEventListener('wheel',e=>{const dx=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:(e.shiftKey?e.deltaY:0);if(!dx)return;e.preventDefault();cancelAnimationFrame(arc.raf);arc.v=0;arc.off=arcClamp(arc.off+dx/arc.s);arcDraw()},{passive:false});
+  el.onkeydown=e=>{if(e.key==='ArrowLeft'){e.preventDefault();arcTo(arcClamp(Math.round(arc.off)-4))}else if(e.key==='ArrowRight'){e.preventDefault();arcTo(arcClamp(Math.round(arc.off)+4))}};
+  const jump=Math.max(4,Math.round(arc.vis*0.6));
+  $('#tr-deck .arcnav.l').onclick=()=>arcTo(arcClamp(arc.off-jump));
+  $('#tr-deck .arcnav.r').onclick=()=>arcTo(arcClamp(arc.off+jump));
+}
+window.addEventListener('resize',()=>{if(arc.el&&arc.el.isConnected){arcSize();arcDraw()}});
 $('#tr-deck').onclick=async e=>{
-  const b=e.target.closest('.fb');if(!b||tr.busy||!tr.deck)return;
+  if(arc.moved){arc.moved=false;return}
+  const b=e.target.closest('.ac');if(!b||tr.busy||!tr.deck)return;
   const n=SP[tr.spread].n,k=+b.dataset.k;
   if(tr.picks.includes(k)||tr.picks.length>=n)return;
-  tr.picks.push(k);b.classList.add('on');b.dataset.n=tr.picks.length;trMsg();
-  trFly(b,tr.picks.length-1);setTimeout(trSlots,430);
-  if(tr.picks.length===n){tr.busy=true;$('#tr-deck .fan').classList.add('done');await sleep(1300);tr.cards=tr.picks.map(x=>({...tr.deck[x]}));tr.how='線上抽牌（密碼學亂數洗牌後，自行點選牌位）';tr.busy=false;renderTr(true)}
+  tr.picks.push(k);trMsg();try{navigator.vibrate&&navigator.vibrate(12)}catch(_){}
+  trFly(b.firstElementChild,tr.picks.length-1);b.classList.add('on');setTimeout(trSlots,430);
+  if(tr.picks.length===n){tr.busy=true;arc.el.classList.add('done');await sleep(1300);tr.cards=tr.picks.map(x=>({...tr.deck[x]}));tr.how='線上抽牌（密碼學亂數洗牌後，自行點選牌位）';tr.busy=false;renderTr(true)}
 };
 $('#tr-reshuffle').onclick=()=>{if(!tr.busy)trEnter()};
 
