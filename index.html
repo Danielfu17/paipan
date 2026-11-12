@@ -187,6 +187,13 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
 @keyframes shufR{0%,100%{transform:translate(3px,3px)}45%{transform:translate(62px,0) rotate(12deg)}70%{transform:translate(22px,-8px) rotate(5deg)}}
 @keyframes shufM{0%,100%{transform:none}45%{transform:translateY(-14px) scale(1.04)}}
 .slots{margin:6px 0 2px}
+@media (min-width:640px){
+ #tr-online{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:18px;align-items:start}
+ #tr-online>.castmsg,#tr-online>#tr-shuffle,#tr-online>p{grid-column:1/3}
+ #tr-online>#tr-deck{grid-column:1;grid-row:2}
+ #tr-online>#tr-slots{grid-column:2;grid-row:2;position:sticky;top:12px;padding-top:14px}
+ #tr-online .tgrid.mini{margin:0}
+}
 .tgrid.mini{gap:6px;margin:6px auto 2px}
 .tgrid.mini .tcap{font-size:11px;margin-top:2px}
 .tslot{display:flex;align-items:center;justify-content:center;aspect-ratio:100/166;border:1px dashed var(--line);border-radius:5px;color:var(--mute);font-size:13px;transition:border-color .3s}
@@ -9422,25 +9429,47 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
   ];
   function art(c) {
     if (c.major) return ART[c.id];
-    if (c.court) return P(COURT[c.rank - 11]) + sym(c.suit, 50, 72, 2.3);
+    if (c.court) return `<g transform="translate(50 22) scale(0.78) translate(-50 -22)">${P(COURT[c.rank - 11])}</g>` + C(50, 70, 25) + `<circle cx="50" cy="70" r="21.5" stroke-width="0.5"/>` + sym(c.suit, 50, 70, 1.75)
+      + star(50, 45, 3, 1.2, 4, true) + star(50, 95, 3, 1.2, 4, true) + star(25, 70, 3, 1.2, 4, true) + star(75, 70, 3, 1.2, 4, true);
     const n = c.rank, s = n === 1 ? 3.4 : n <= 3 ? 1.5 : n <= 6 ? 1.35 : 1.1;
     return PIPS[n - 1].map(p => sym(c.suit, p[0], p[1], s)).join('') + (n === 1 ? rays(50, 50, 40, 46, 12, Math.PI / 12) : '');
   }
   const SERIF = `font-family="'Songti TC','Noto Serif TC','PMingLiU',serif"`;
+  const SUITC = { wands: '#eaa274', cups: '#8fc3ea', swords: '#cdd5ec', pentacles: '#e8c977' };
+  let UID = 0;
+  const grad = id => `<defs><linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="100" y2="166"><stop offset="0" stop-color="#f8e6b0"/><stop offset=".45" stop-color="#dcb561"/><stop offset="1" stop-color="#a67a2a"/></linearGradient><linearGradient id="${id}b" gradientUnits="userSpaceOnUse" x1="0" y1="20" x2="0" y2="112"><stop offset="0" stop-color="#1b2450"/><stop offset="1" stop-color="#0f1430"/></linearGradient></defs>`;
+  const FRAME = 'M12 5.5H88a6.5 6.5 0 0 0 6.5 6.5V154a6.5 6.5 0 0 0-6.5 6.5H12a6.5 6.5 0 0 0-6.5-6.5V12a6.5 6.5 0 0 0 6.5-6.5z';
+  const dia = (x, y, s) => `M${x} ${f2(y - s)}L${f2(x + s)} ${y}L${x} ${f2(y + s)}L${f2(x - s)} ${y}z`;
+  const shell = (id, g) => `<rect x="1" y="1" width="98" height="164" rx="7" fill="${BG}" stroke="${g}" stroke-width="1.3"/><path d="${FRAME}" fill="none" stroke="${g}" stroke-width="0.5"/>`
+    + [[8.6, 8.6], [91.4, 8.6], [8.6, 157.4], [91.4, 157.4]].map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="1" fill="${g}"/>`).join('');
   function face(c) {
+    const id = 'tg' + (UID++), g = `url(#${id})`, acc = c.major ? INK : SUITC[c.suit];
+    let seed = c.id * 9301 + 49297; const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+    let dots = '';
+    for (let i = 0; i < 18; i++) { const x = 16 + rnd() * 68, y = 30 + rnd() * 78, r = 0.22 + rnd() * 0.42; if ((x - 50) ** 2 + (y - 60) ** 2 > 38 * 38 && y < 60) continue; dots += `<circle cx="${f2(x)}" cy="${f2(y)}" r="${f2(r)}" fill="${INK}" opacity="${f2(0.2 + rnd() * 0.45)}"/>`; }
     const zs = c.zh.length >= 4 ? 12.5 : 14.5;
-    return `<svg viewBox="0 0 100 166" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${c.zh}"><rect x="1" y="1" width="98" height="164" rx="7" fill="${BG}" stroke="${GD}" stroke-width="1.2"/><rect x="5" y="5" width="90" height="156" rx="4.5" fill="none" stroke="${GD}" stroke-width="0.4"/>`
-      + `<text x="50" y="18.5" text-anchor="middle" fill="${GD}" font-size="8.5" ${SERIF}>${c.top}</text>`
-      + `<g transform="translate(10 24) scale(0.8)" fill="none" stroke="${GD}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${art(c)}</g>`
-      + `<line x1="30" y1="112" x2="70" y2="112" stroke="${GD}" stroke-width="0.4"/>`
-      + `<text x="50" y="${134}" text-anchor="middle" fill="${INK}" font-size="${zs}" letter-spacing="${c.zh.length <= 2 ? 4 : 1}" ${SERIF}>${c.zh}</text>`
-      + `<text x="50" y="149" text-anchor="middle" fill="${GD}" font-size="6.2" ${SERIF}>${c.en}</text></svg>`;
+    return `<svg viewBox="0 0 100 166" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${c.zh}">${grad(id)}${shell(id, g)}`
+      + `<path d="M26 13.6h9M65 13.6h9" stroke="${g}" stroke-width="0.5"/><path d="${dia(23.5, 13.6, 1.3)}${dia(76.5, 13.6, 1.3)}" fill="${acc}"/>`
+      + `<text x="50" y="16.4" text-anchor="middle" fill="${acc}" font-size="7.6" ${SERIF}>${c.top}</text>`
+      + `<path d="M11 112V60a39 39 0 0 1 78 0V112z" fill="url(#${id}b)" stroke="${g}" stroke-width="0.7"/><path d="M14 109V60a36 36 0 0 1 72 0V109" fill="none" stroke="${g}" stroke-width="0.3" opacity="0.7"/>${dots}`
+      + `<g transform="translate(14 34) scale(0.72)" fill="none" stroke="${g}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${art(c).split(GD).join(g)}</g>`
+      + `<path d="M24 120.5H44.5M55.5 120.5H76" stroke="${g}" stroke-width="0.5"/><path d="${dia(50, 120.5, 2.4)}" fill="${acc}"/><path d="${dia(46.2, 120.5, 0.9)}${dia(53.8, 120.5, 0.9)}" fill="${g}"/>`
+      + `<text x="50" y="137.5" text-anchor="middle" fill="${INK}" font-size="${zs}" letter-spacing="${c.zh.length <= 2 ? 4 : 1}" ${SERIF}>${c.zh}</text>`
+      + `<text x="50" y="149" text-anchor="middle" fill="${g}" font-size="6" letter-spacing="0.3" ${SERIF}>${c.en}</text>`
+      + `<path d="${dia(50, 155.8, 1)}${dia(45.5, 155.8, 0.6)}${dia(54.5, 155.8, 0.6)}" fill="${g}"/></svg>`;
   }
   function back() {
-    let d = ''; for (let r = 0; r < 8; r++) for (let c = 0; c < 5; c++) { const x = f2(17.2 + c * 16.4), y = f2(18.25 + r * 18.5); d += `M${x} ${f2(y - 9.25)}L${f2(x + 8.2)} ${y}L${x} ${f2(y + 9.25)}L${f2(x - 8.2)} ${y}z`; }
-    return `<svg viewBox="0 0 100 166" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="1" y="1" width="98" height="164" rx="7" fill="${BG}" stroke="${GD}" stroke-width="1.2"/><rect x="9" y="9" width="82" height="148" rx="3" fill="none" stroke="${GD}" stroke-width="0.6"/>`
-      + `<path d="${d}" stroke="${GD}" stroke-width="0.35" opacity="0.5" fill="none"/><circle cx="50" cy="83" r="19" fill="${BG}" stroke="${GD}" stroke-width="0.8"/>`
-      + `<g fill="none" stroke="${GD}">${star(50, 83, 14, 5, 8, true)}</g></svg>`;
+    const id = 'tg' + (UID++), g = `url(#${id})`;
+    let d = ''; for (let r = 0; r < 9; r++) for (let c = 0; c < 6; c++) { const x = f2(15 + c * 14), y = f2(18 + r * 16.25); d += dia(x, y, 0).replace(/z$/, '') && `M${x} ${f2(y - 8.1)}L${f2(x + 7)} ${y}L${x} ${f2(y + 8.1)}L${f2(x - 7)} ${y}z`; }
+    const cres = (cy, flip) => `<g transform="translate(50 ${cy})${flip ? ' scale(-1 1)' : ''}"><path d="M0 -6a6 6 0 1 0 0 12a4.4 6 0 1 1 0 -12z" fill="${g}"/></g>`;
+    return `<svg viewBox="0 0 100 166" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${grad(id)}${shell(id, g)}`
+      + `<path d="${d}" stroke="${g}" stroke-width="0.3" opacity="0.38" fill="none"/>`
+      + `<rect x="12" y="12" width="76" height="142" rx="2" fill="none" stroke="${g}" stroke-width="0.4" opacity="0.8"/>`
+      + `<circle cx="50" cy="83" r="27" fill="${BG}" stroke="${g}" stroke-width="0.9"/><circle cx="50" cy="83" r="23.5" fill="none" stroke="${g}" stroke-width="0.35"/>`
+      + `<g stroke="${g}" stroke-width="0.6" fill="none">${rays(50, 83, 17.5, 22, 24)}</g>`
+      + `<g fill="none" stroke="none">${star(50, 83, 15, 5.2, 8, true).split(GD).join(g)}</g><circle cx="50" cy="83" r="2.6" fill="${BG}"/>`
+      + `<circle cx="50" cy="34" r="9" fill="${BG}"/><circle cx="50" cy="132" r="9" fill="${BG}"/>${cres(34, false)}${cres(132, true)}`
+      + `<path d="${dia(50, 20, 2)}${dia(50, 146, 2)}" fill="${g}"/></svg>`;
   }
 
   const api = { CARDS, SUITS, SPREADS, shuffle, deal, randInt, face, back };
