@@ -51,7 +51,7 @@
 
 ## 排盤的正確性
 
-- 四柱與節氣使用 [lunar-javascript](https://github.com/6tail/lunar-javascript)（MIT 授權），以節氣交節的實際時刻為準，23:00 換日。
+- 四柱與節氣使用 [lunar-javascript](https://github.com/6tail/lunar-javascript)（MIT 授權，版權聲明見 [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt)），以節氣交節的實際時刻為準，23:00 換日。
 - 六爻與奇門的拆補法盤面，曾與其他排盤工具和開源程式逐項交叉比對。
 - 奇門另以兩萬張隨機盤檢查內部一致性。
 - 置閏法各家實作不一，本工具以《統宗》書中的範例驗證，結果可能與其他網站不同。
