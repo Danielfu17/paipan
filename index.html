@@ -187,6 +187,20 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
 @keyframes shufR{0%,100%{transform:translate(3px,3px)}45%{transform:translate(62px,0) rotate(12deg)}70%{transform:translate(22px,-8px) rotate(5deg)}}
 @keyframes shufM{0%,100%{transform:none}45%{transform:translateY(-14px) scale(1.04)}}
 .slots{margin:6px 0 2px}
+@media (max-width:639px){
+ #tr-online{display:flex;flex-direction:column}
+ #tr-online>.castmsg{order:1;min-height:0;margin:6px 0 8px}
+ #tr-online>#tr-deck{order:2}
+ #tr-online>#tr-shuffle{order:3}
+ #tr-online>#tr-slots{order:4;margin-top:6px}
+ #tr-online>p{order:5}
+ #tr-slots.pre{display:none}
+ #v-tr-draw h2{font-size:21px;margin:14px 0 4px}
+ #v-tr-draw .seg{margin:10px 0}
+ .deckwrap{min-height:150px;margin:0 0 10px}
+ .stack{width:76px}
+ #tr-shuffle{width:100px;height:100px;font-size:20px}
+}
 @media (min-width:640px){
  #tr-online{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:18px;align-items:start}
  #tr-online>.castmsg,#tr-online>#tr-shuffle,#tr-online>p{grid-column:1/3}
@@ -268,6 +282,8 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
 @media (hover:none){.arcnav{display:none}}
 .arcbar{position:relative;height:4px;border-radius:4px;background:var(--line);margin:10px auto 0;max-width:200px;overflow:hidden}
 .arcbar i{position:absolute;top:0;height:100%;border-radius:4px;background:var(--accent)}
+.qremind{border-left:2px solid var(--accent);padding:4px 12px;margin:4px 0 8px;font-size:14.5px;color:var(--mute);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.qremind b{color:var(--ink);font-weight:400}
 /* 白話說明抽屜 */
 #sheet{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:flex-end;justify-content:center;z-index:20}
 #sheet.on{display:flex}
@@ -310,6 +326,7 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
 <section class="view" id="v-ly-cast">
   <div class="steps"><span class="on"></span><span class="on"></span><span></span></div><div class="steplabel">六爻　第二步・起卦</div>
   <h2 class="serif" id="ly-cast-h">擲六次銅錢，由下往上成卦</h2>
+  <div class="qremind" id="ly-qr" hidden></div>
   <div class="seg" id="ly-mode"><button data-m="manual" class="on">我用真銅錢搖</button><button data-m="online">在這裡搖</button><button data-m="num">用數字起卦</button></div>
 
   <div id="ly-online" hidden>
@@ -390,6 +407,7 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
 <section class="view" id="v-tr-draw">
   <div class="steps"><span class="on"></span><span class="on"></span><span></span></div><div class="steplabel">塔羅　第二步・抽牌</div>
   <h2 class="serif" id="tr-draw-h"></h2>
+  <div class="qremind" id="tr-qr" hidden></div>
   <div class="seg" id="tr-mode"><button data-m="online" class="on">在這裡抽</button><button data-m="manual">我用實體牌</button></div>
   <div id="tr-online">
     <div class="castmsg" id="tr-msg"></div>
@@ -9616,7 +9634,8 @@ function sheet(title,html){$('#sheet-body').innerHTML=`<h3 class="serif">${title
 $('#sheet').onclick=e=>{if(e.target.id==='sheet'||e.target.id==='sheet-close')$('#sheet').classList.remove('on')};
 
 /* ---------- 導覽 ---------- */
-function go(v){$$('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));window.scrollTo(0,0);
+const qRemind=(id,q)=>{const el=$(id);el.hidden=!q;el.innerHTML=q?'你問的是：<b>'+esc(q)+'</b>':''};
+function go(v){if(v==='ly-cast')qRemind('#ly-qr',$('#ly-q').value.trim());if(v==='tr-draw')qRemind('#tr-qr',$('#tr-q').value.trim());$$('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));window.scrollTo(0,0);
   if(v==='ly-cast'&&ly.lines.length===0)drawBuild(); if(v==='qm-ask')tickNow(); if(v==='hist')renderH(); if(v==='tr-ask')drawSpreads(); if(v==='tr-draw')trEnter();}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b)go(b.dataset.go)});
 $('#home-btn').onclick=()=>go('home'); $('#hist-btn').onclick=()=>go('hist');
@@ -9972,7 +9991,8 @@ function trEnter(){
   $('#tr-shuffle').hidden=false;$('#tr-msg').innerHTML='<span class="hint">78 張牌已備好</span><br>心裡想著問題，按下「洗牌」';
   tr.man=sp.pos.map(()=>({i:'',rev:false}));drawTrMan();
 }
-function trSlots(){const sp=SP[tr.spread],k=tr.picks.length,mw={1:64,3:216,4:256}[sp.cols];
+function trSlots(){const sp=SP[tr.spread],k=tr.picks.length,mw=(innerWidth<640?{1:52,3:162,4:212}:{1:64,3:216,4:256})[sp.cols];
+  $('#tr-slots').classList.toggle('pre',!tr.deck);
   $('#tr-slots').style.setProperty('--sw',mw+'px');
   $('#tr-slots').innerHTML=`<div class="tgrid mini" style="grid-template-columns:repeat(${sp.cols},minmax(0,1fr));max-width:${mw}px">${sp.pos.map((p,i)=>{const cross=sp.cross===i;
     return `<div class="tcell ${cross?'crossc':''}" style="grid-column:${p[2]};grid-row:${p[3]}"><span class="tslot ${i<k?'got':i===k&&tr.deck?'next':''} ${i===k-1?'new':''}" data-i="${i}">${i<k?T.back():`<b>${i+1}</b>`}</span>${cross?'':`<div class="tcap">${p[0]}</div>`}</div>`}).join('')}</div>`}
@@ -9997,7 +10017,7 @@ function arcSize(){
   const W=arc.el.clientWidth,m=W<480;arc.cw=m?56:68;arc.s=m?26:28;arc.R=m?440:660;
   arc.maxTh=Math.asin(Math.min(1,(W/2+arc.cw)/arc.R));
   const edge=Math.asin(Math.min(1,(W/2)/arc.R));
-  arc.el.style.height=Math.round(arc.R*(1-Math.cos(edge))+arc.cw*1.66+46)+'px';
+  arc.top=matchMedia('(hover:hover)').matches?30:10;arc.el.style.height=Math.round(arc.R*(1-Math.cos(edge))+arc.cw*1.66+arc.top+16)+'px';
   arc.el.style.setProperty('--cw',arc.cw+'px');arc.vis=2*edge*arc.R/arc.s;
 }
 function arcDraw(){
@@ -10005,7 +10025,7 @@ function arcDraw(){
   for(let i=0;i<arc.cards.length;i++){const el=arc.cards[i],th=(i-arc.off)*arc.spread*step;
     if(Math.abs(th)>arc.maxTh){if(el.style.display!=='none')el.style.display='none';continue}
     if(el.style.display)el.style.display='';
-    el.style.transform=`translate(${(arc.R*Math.sin(th)-arc.cw/2).toFixed(1)}px,${(arc.R*(1-Math.cos(th))+30).toFixed(1)}px) rotate(${th.toFixed(4)}rad)`}
+    el.style.transform=`translate(${(arc.R*Math.sin(th)-arc.cw/2).toFixed(1)}px,${(arc.R*(1-Math.cos(th))+arc.top).toFixed(1)}px) rotate(${th.toFixed(4)}rad)`}
   const t=$('#tr-arcthumb');if(t){const f=Math.min(1,arc.vis/78);t.style.width=(f*100)+'%';t.style.left=(Math.max(0,Math.min(1,arc.off/77))*(1-f)*100)+'%'}
 }
 function arcGlide(){
