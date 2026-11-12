@@ -51,6 +51,8 @@
 
 ## 排盤的正確性
 
+完整的排盤規則與每個標記的定義，見[排盤規則與標記定義](https://danielfu17.github.io/paipan/rules.html)。資料包也會附上這個網址，讓 AI 解讀時可以查閱。
+
 - 四柱與節氣使用 [lunar-javascript](https://github.com/6tail/lunar-javascript)（MIT 授權，版權聲明見 [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt)），以節氣交節的實際時刻為準，23:00 換日。
 - 六爻與奇門的拆補法盤面，曾與其他排盤工具和開源程式逐項交叉比對。
 - 奇門另以兩萬張隨機盤檢查內部一致性。

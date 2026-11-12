@@ -309,7 +309,7 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
   <button class="pick" data-go="ly-ask"><i>☰</i><b class="serif">六爻</b><span>問一件具體的事：成不成、順不順、對方怎麼想。<br>親手擲三枚銅錢六次，得到一個卦。</span></button>
   <button class="pick" data-go="qm-ask"><i>⊞</i><b class="serif">奇門遁甲</b><span>看此刻的整體局勢：該進還是該守、往哪個方向。<br>用起念的這一刻排出九宮盤。</span></button>
   <button class="pick" data-go="tr-ask"><i>✦</i><b class="serif">塔羅</b><span>看一段關係、一個選擇，或此刻的心境。<br>洗牌後憑直覺抽牌，排成牌陣。</span></button>
-  <p class="hint" style="margin-top:22px">僅供文化探索與自我整理參考，重要決定請回到現實資訊。</p>
+  <p class="hint" style="margin-top:22px">僅供文化探索與自我整理參考，重要決定請回到現實資訊。<br><a href="rules.html" style="color:inherit">排盤規則與標記定義</a></p>
 </section>
 
 <!-- 六爻 1：立問 -->
@@ -9614,6 +9614,27 @@ const nowLocal=()=>{const d=new Date();return `${d.getFullYear()}-${pad(d.getMon
 const parseT=v=>{const m=(v||'').match(/(\d+)-(\d+)-(\d+)T(\d+):(\d+)/);return m?{y:+m[1],m:+m[2],d:+m[3],h:+m[4],mi:+m[5]}:null};
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const JU='零一二三四五六七八九';
+const RULES_URL='https://danielfu17.github.io/paipan/rules.html';
+const rulesLine=h=>`排盤規則與標記定義：${RULES_URL}#${h}（可以上網時請先查閱，名詞以該頁定義為準；盤面資料已全部列在本資料包內）`;
+const WXS='木火土金水';
+const wxRel=(a,b,A,B)=>{const i=WXS.indexOf(a),j=WXS.indexOf(b);return i===j?`${A}${B}比和`:(i+1)%5===j?`${A}生${B}`:(j+1)%5===i?`${B}生${A}`:(i+2)%5===j?`${A}克${B}`:`${B}克${A}`};
+const STAR_WX={天蓬:'水',天芮:'土',天沖:'木',天輔:'木',天禽:'土',天心:'金',天柱:'金',天任:'土',天英:'火'};
+const GATE_WX={休:'水',生:'土',傷:'木',杜:'木',景:'火',死:'土',驚:'金',開:'金'};
+function monthTurn(t){
+  try{const j=Solar.fromYmdHms(t.y,t.m,t.d,t.h,t.mi,0).getLunar().getNextJie(),sv=j.getSolar(),after=Solar.fromYmdHms(sv.getYear(),sv.getMonth(),sv.getDay(),sv.getHour(),sv.getMinute(),59).next(1).getLunar().getMonthInGanZhiExact();
+    return `下一次換月建：${j.getName()}（${sv.toYmdHms().slice(0,16)} 交節），之後月建為 ${after}。在那之前月建不變。`}
+  catch(e){return '下一次換月建的時間無法計算，請以十二「節」的交節時刻為準。'}
+}
+function dayTable(cal,n){
+  n=n||30;const t=cal.t,b=new Date(t.y,t.m-1,t.d+(t.h>=23?1:0)),out=[];
+  for(let i=0;i<n;i++){const d=new Date(b.getFullYear(),b.getMonth(),b.getDate()+i),c=E.calendar({y:d.getFullYear(),m:d.getMonth()+1,d:d.getDate(),h:12,mi:0});out.push(`${d.getMonth()+1}/${d.getDate()} ${c.pillars.day}`)}
+  const hrs=[0,1,3,5,7,9,11,13,15,17,19,21].map(h=>{const c=E.calendar({y:b.getFullYear(),m:b.getMonth()+1,d:b.getDate(),h,mi:0});return c.pillars.hour+(h===0?'（前一晚 23 點至 1 點）':`（${h}–${h+2} 點）`)});
+  return ['【應期換算表】（由程式計算，請直接查表，不要自行推算干支）',
+    '日柱以 23:00 換日：下列每個日期的日柱，自前一晚 23:00 起算。',
+    `未來 ${n} 日的日柱：${out.join('、')}`,
+    `${b.getMonth()+1}/${b.getDate()} 當日十二時辰：${hrs.join('、')}`,
+    monthTurn(t)].join('\n');
+}
 
 /* ---------- 白話詞典 ---------- */
 const G={
@@ -9660,15 +9681,15 @@ const FW={ly:['個卦','起卦','盤面','爻、地支或旬空月破'],qm:['張
 const FOLLOW=id=>{const [a,b,c,d]=FW[id];return `【追問要求】
 這是同一件事的追問，請沿用以上同一${a}，不要重新${b}或改動資料。
 1. 依時間先後，說明這件事接下來可能經過的階段與轉折點，每一階段標明${c}依據。
-2. 推斷可能的時間點（大約何時有變化或結果），並說明是依哪個${d}推得；推不出來就直接說。
+2. 推斷可能的時間點（大約何時有變化或結果），並說明是依哪個${d}推得；推不出來就直接說。${id==='tr'?'':'換算成日期時請查上面的【應期換算表】，不要自行推算干支。'}
 3. 指出目前最有利與最不利的因素，以及我可以怎麼做來順勢或避開。
 4. ${c}看不出來的部分請直接說明，不要補想像；也不要為了回應我的期待而調整結論。${id==='tr'?'\n5. 牌陣中若已有代表未來或結果的牌位，請以那張牌為主軸展開，並說明它和其他牌的關聯；不要另外想像沒抽到的牌。':''}`};
-function bindCta(id,base,inst){
+function bindCta(id,base,inst,extra){
   $(`#${id}-copy`).onclick=()=>copyText(base+'\n\n'+inst,$(`#${id}-after`));
   $(`#${id}-copy-raw`).onclick=()=>copyText(base,$(`#${id}-after`));
   $(`#${id}-pack`).value=base+'\n\n'+inst;
   $(`#${id}-follow`).onclick=()=>{const fq=$(`#${id}-fq`).value.trim();
-    copyText(base+'\n\n'+FOLLOW(id)+(fq?'\n\n我想追問的重點：'+fq:''),$(`#${id}-fafter`))};
+    copyText(base+(extra?'\n\n'+extra:'')+'\n\n'+FOLLOW(id)+(fq?'\n\n我想追問的重點：'+fq:''),$(`#${id}-fafter`))};
 }
 function pillarsHtml(cal){const P=cal.pillars;return `<div class="pillars serif">${[['年',P.year],['月',P.month],['日',P.day],['時',P.hour]].map(([n,g])=>`<div><small>${n}柱</small>${cGan(g[0])}<br>${cZhi(g[1])}</div>`).join('')}</div>`}
 
@@ -9790,6 +9811,7 @@ function lyPack(q,cal,r){
   L.push('標記說明：旬空、月破、日沖、臨月建、臨日辰、月合、日合皆為地支與月建、日辰的字面關係；日沖是否論暗動或日破、空亡是否論真空，請結合全卦判斷。');
   L.push('');
   L.push(`搖卦原始記錄（初爻→上爻）：${r.rows.map(x=>VAL[x.value]).join('、')}`);
+  L.push(rulesLine('liuyao'));
   return L.join('\n');
 }
 let lyLast=null;
@@ -9828,7 +9850,7 @@ function renderLy(save){
   </div>
   ${notesCard('ly')}
   <div class="row" style="margin-top:18px"><button class="btn ghost grow" id="ly-again">再問另一件事</button></div>`;
-  bindCta('ly',pack,LY_INST);
+  bindCta('ly',pack,LY_INST,dayTable(cal));
   $$('#ly-out tr.tap').forEach(tr=>tr.onclick=()=>{const x=r.rows[+tr.dataset.pos-1];
     let h=`<dt>${x.qin} ${x.gan}${x.zhi}（${x.wx}）</dt><dd>${G[x.qin]}</dd>`+gl(x.shen,'六神：'+x.shen);
     if(x.shi)h+=gl('世','世爻');if(x.ying)h+=gl('應','應爻');
@@ -9872,22 +9894,38 @@ function qmPack(q,cal,r,ts){
   L.push(`起局時刻：${ts?ts.clock+'（鐘錶時間）→ 真太陽時 '+cal.solar+`，經度 ${ts.lng}°，含均時差共修正 ${ts.off>=0?'+':''}${ts.off} 分鐘`:cal.solar+'（鐘錶時間）'}`);
   L.push(`農曆：${cal.lunar}`);
   L.push(`四柱：${P.year}年 ${P.month}月 ${P.day}日 ${P.hour}時（23:00 換日）`);
-  L.push(`排盤法：時家奇門・轉盤・${r.method}法定局・中五宮寄坤二宮`);
+  L.push(`排盤法：時家奇門・轉盤・${r.method}法定局・中五宮的地盤干寄坤二宮；天禽星隨天芮星同宮轉動`);
   if(r.run)L.push(`置閏說明：以符頭鏈定局，本局取用「${r.juJq}」${r.run.isLeap?'（閏）':''}之局；天文上的當前節氣為 ${cal.jieqi}。`);
   L.push(`節氣：${cal.jieqi}（${cal.jieqiTime} 交節）｜符頭 ${r.futou}・${r.yuan}｜${r.yang?'陽':'陰'}遁${JU[r.ju]}局`);
   L.push(`時旬首：${r.xunshou}（遁於${r.yi}）｜值符：${r.zhifu}，落${pn(r.zhifuPal)}｜值使：${r.zhishi}，落${pn(r.zhishiPal)}`);
   L.push(`時空亡：${cal.hourKong}（${r.kongPal.map(p=>r.PAL[p].n).join('、')}）｜日空亡：${cal.dayKong}｜馬星：${r.ma}（${r.PAL[r.maPal].n}）`);
   L.push('');
+  const qinPal=[1,2,3,4,6,7,8,9].find(p=>r.cells[p].star.includes('禽'));
   L.push('九宮盤面（依洛書方位，上南下北）：');
   [4,9,2,3,5,7,8,1,6].forEach(p=>{const c=r.cells[p];
-    if(p===5){L.push(`${pn(p)}｜地盤干 ${c.di}｜暗干 ${c.an}｜天禽星寄坤二宮`);return}
-    L.push(`${pn(p)}｜八神 ${c.god}｜九星 ${c.star}｜八門 ${c.gate}｜天盤干 ${c.tian.join('、')}｜地盤干 ${c.di}${p===2?'（寄宮地盤干 '+r.cells[5].di+'）':''}｜暗干 ${c.an}${c.marks.length?'｜'+c.marks.join('、'):''}`)});
+    if(p===5){L.push(`${pn(p)}｜地盤干 ${c.di}（寄在坤二宮）｜暗干 ${c.an}｜本宮不排星門神；天禽星此局隨天芮在${pn(qinPal)}`);return}
+    const hasQin=c.star.includes('禽'), tian=hasQin&&c.tian.length>1?`${c.tian[0]}（天芮所帶）、${c.tian[1]}（天禽所帶，即中五宮地盤干）`:c.tian.join('、');
+    L.push(`${pn(p)}｜八神 ${c.god}｜九星 ${hasQin?'天芮、天禽（同宮）':c.star}｜八門 ${c.gate}｜天盤干 ${tian}｜地盤干 ${c.di}${p===2?'（本宮）、'+r.cells[5].di+'（中五宮寄來）':''}｜暗干 ${c.an}${c.marks.length?'｜'+c.marks.join('、'):''}`)});
   L.push('');
   L.push('用神天干落宮：');
   r.gans.forEach(g=>L.push(`${g.label}${g.year?'（'+g.year+' 年生）':''} ${g.gz}${g.dun?'（甲遁於'+g.gan+'，以'+g.gan+'代）':''}：天盤在${pn(g.tian)}，地盤在${pn(g.di)}`));
+  L.push('以上是程式列出的基本用神。其餘用神（例如感情題常用的乙、庚、六合）請解讀者依所占之事自選，並說明理由。');
+  const byGan={};r.gans.forEach(g=>{const k=g.dun?g.gan:g.gz[0];(byGan[k]=byGan[k]||[]).push(g.label)});
+  Object.entries(byGan).filter(([,v])=>v.length>1).forEach(([k,v])=>L.push(`注意：${v.join('、')}同為「${k}」，天盤與地盤落宮完全相同，無法用天干區分彼此。`));
+  L.push('');
+  L.push('五行生克速查（由程式計算）：');
+  const mz=P.month[1],mi=WXS.indexOf(zhiWx(mz));
+  L.push(`月令：${mz}（${zhiWx(mz)}）｜旺相休囚死：${WXS[mi]}旺、${WXS[(mi+1)%5]}相、${WXS[(mi+4)%5]}休、${WXS[(mi+3)%5]}囚、${WXS[(mi+2)%5]}死`);
+  L.push('宮位所含地支：坎一子、艮八丑寅、震三卯、巽四辰巳、離九午、坤二未申、兌七酉、乾六戌亥');
+  [4,9,2,3,7,8,1,6].forEach(p=>{const c=r.cells[p],sn=c.star.slice(0,2),sw=STAR_WX[sn],gw=GATE_WX[c.gate[0]];
+    const tg=c.tian.map(t=>`天盤${t}${ganWx(t)}與地盤${c.di}${ganWx(c.di)}：${wxRel(ganWx(t),ganWx(c.di),'天盤','地盤')}`).join('；');
+    L.push(`${r.PAL[p].n}（${c.wx}）｜${sn}${sw}：${wxRel(sw,c.wx,'星','宮')}${c.star.includes('禽')?'；天禽土：'+wxRel('土',c.wx,'星','宮'):''}｜${c.gate}${gw}：${wxRel(gw,c.wx,'門','宮')}｜${tg}`)});
+  L.push('吉凶屬性（通行說法，各派略有出入）：吉門 開、休、生，凶門 死、驚、傷，中平 杜、景；吉星 輔、禽、心（大吉）與 沖、任（小吉），凶星 蓬、芮（大凶）與 柱、英（小凶）；吉神 值符、太陰、六合、九地、九天，凶神 螣蛇、白虎、玄武。');
+  L.push('十干克應的格局名稱各派不同，本資料包不預先命名；引用格局時請註明所用的說法。');
   L.push('');
   L.push(`格局提示：${r.notes.length?r.notes.join('；'):'無伏吟、反吟、五不遇時'}`);
   L.push('暗干說明：八門各帶其本宮地盤干隨門而行，配以時旬地支；為盤面下的隱藏層。');
+  L.push(rulesLine('qimen'));
   return L.join('\n');
 }
 function renderQm(save){
@@ -9923,7 +9961,7 @@ function renderQm(save){
   </div>
   ${notesCard('qm')}
   <div class="row" style="margin-top:18px"><button class="btn ghost grow" data-go="qm-ask">再起一局</button></div>`;
-  bindCta('qm',pack,QM_INST);
+  bindCta('qm',pack,QM_INST,dayTable(cal));
   $$('#qm-out .qc').forEach(el=>el.onclick=()=>{const p=+el.dataset.p,c=r.cells[p];
     if(p===5){sheet('中五宮・中央',`<dt>地盤干 ${c.di}・暗干 ${c.an}</dt><dd>中宮不排門與神；天禽星寄在坤二宮，與天芮同看。</dd>`);return}
     const star=c.star.slice(0,2);
@@ -10128,6 +10166,7 @@ function trPack(q,time,sp,cs,useRev){
   if(st.rep.length)L.push(`重複的數字或位階：${st.rep.join('、')}`);
   if(sp.cross!==undefined)L.push(`說明：第 ${sp.cross+1} 張為橫置牌，壓在第 1 張上，不分正逆，一律以正位記錄。`);
   L.push('關鍵字說明：關鍵字只是常見牌義的提示，解讀時請以牌本身的完整含義為準。');
+  L.push(rulesLine('tarot'));
   return L.join('\n');
 }
 function renderTr(save){
