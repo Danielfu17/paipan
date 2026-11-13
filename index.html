@@ -9831,6 +9831,7 @@ const FOLLOW=id=>{const [a,b,c,d]=FW[id];return `【追問要求】
 3. 指出目前最有利與最不利的因素，以及我可以怎麼做來順勢或避開。
 4. ${c}看不出來的部分請直接說明，不要補想像；也不要為了回應我的期待而調整結論。${id==='tr'?'\n5. 牌陣中若已有代表未來或結果的牌位，請以那張牌為主軸展開，並說明它和其他牌的關聯；不要另外想像沒抽到的牌。':''}`};
 function bindCta(id,base,inst,extra){
+  inst=inst.replace('【解讀要求】\n','【解讀要求】\n開始之前：如果你可以瀏覽網頁，請先讀過規則頁 '+RULES_URL+'#'+({ly:'liuyao',qm:'qimen',tr:'tarot'}[id])+' ，名詞以該頁的定義為準，並在回答的第一行寫「已查閱規則頁」。如果你無法瀏覽網頁，請在第一行寫「未能查閱規則頁，以下只依資料包」，不要假裝讀過；資料包本身已包含解讀所需的全部盤面資料。\n');
   $(`#${id}-copy`).onclick=()=>copyText(base+'\n\n'+inst,$(`#${id}-after`));
   $(`#${id}-copy-raw`).onclick=()=>copyText(base,$(`#${id}-after`));
   $(`#${id}-pack`).value=base+'\n\n'+inst;
@@ -10084,7 +10085,13 @@ function qmPack(q,cal,r,ts){
       else if(f[0]==='pillar'){const g=r.gans[['year','month','day','hour'].indexOf(f[1])];w=`${g.dun?g.gan+'（甲遁）':g.gz[0]}，天盤在${pn(g.tian)}`}
       L.push(`${name}（${role}）：${w}`)});
     L.push(`判斷要點：${TP.tip}`);
-  }else L.push('以上是程式列出的基本用神。其餘用神請解讀者依所占之事自選，並說明理由。');
+  }else{
+    L.push('');
+    L.push('未選問題類別。請依所占之事從下列通用對照選定用神，並說明理由（各類問題的完整對照見規則頁 '+RULES_URL+'#topics）：');
+    L.push('人：日干為求測者本人，年命並看；時干為所問之事、對方或晚輩；月干為同輩、同事、競爭者；年干為長輩、上級。');
+    L.push('事：值符為主事者或上司，值使為經辦的人與執行的過程，六合為中介、合作與關係本身。');
+    L.push('感情：天盤乙為女方，天盤庚為男方。求財：生門為利潤，戊為資本，時干為財貨。工作：開門為職位與單位。考試：天輔為考場，丁與景門為文章試卷。疾病：天芮為病，天心與乙為醫藥。出行：景門為道路，傷門為車船，開門為飛機。失物：時干為失物，玄武為取走的人。官司：值符為原告，值符所落之宮的本位星為被告，開門為法官。');
+  }
   const byGan={};r.gans.forEach(g=>{const k=g.dun?g.gan:g.gz[0];(byGan[k]=byGan[k]||[]).push(g.label)});
   Object.entries(byGan).filter(([,v])=>v.length>1).forEach(([k,v])=>L.push(`注意：${v.join('、')}同為「${k}」，天盤與地盤落宮完全相同，無法用天干區分彼此。`));
   L.push('');
