@@ -10087,7 +10087,7 @@ const LY_INST=`【解讀要求】
 1. 定用神：資料包若已標出用神、原神、忌神、仇神，以它為主；你若認為這件事應取別的用神，請說明理由後改取。資料包沒有標出時，依所問之事自行選定並說明理由。
 2. 分析用神、原神、忌神、仇神在月建、日辰下的旺衰，以及動變、旬空、月破、伏神與飛神的關係。
 3. 分析世爻、應爻的狀態與彼此關係。
-4. 給出明確的結論、可能的應期，以及具體建議。
+4. 給出明確的結論、可能的應期，以及具體建議。應期依資料包的「六爻應期參考」選定，換算成日期時查「應期換算表」，不要自行推算干支。
 5. 資料包若列出「待判定的標記」，請在解讀的一開始先給一段「標記判定」，逐項寫成「哪一爻・哪個標記 → 判定結果（例如真空或不空、到底破或不破、暗動或日破、合起或合絆）：一句理由」。每一項都要寫，不可省略；後面的分析必須和這裡的判定一致。判準如下，不能只看字面：
    - 旬空：旺相、發動，或得日月、動爻生扶者不作真空；休囚安靜又受克者才是真空。
    - 月破：臨日辰者不論破；動爻雖破仍能生克他爻；靜而無生扶者為到底破。
@@ -10176,7 +10176,7 @@ function renderLy(save){
   </div>
   ${notesCard('ly')}
   <div class="row" style="margin-top:18px"><button class="btn ghost grow" id="ly-again">再問另一件事</button></div>`;
-  const lt=lyTiming(r,cal,ly.topic,ly.who,YAO,ZCH,ZHE);bindCta('ly',pack,LY_INST,(lt?lt+'\n\n':'')+dayTable(cal));
+  const lt=lyTiming(r,cal,ly.topic,ly.who,YAO,ZCH,ZHE);bindCta('ly',pack+'\n\n'+(lt?lt+'\n\n':'')+dayTable(cal),LY_INST);
   $$('#ly-out tr.tap').forEach(tr=>tr.onclick=()=>{const x=r.rows[+tr.dataset.pos-1];
     let h=`<dt>${x.qin} ${x.gan}${x.zhi}（${x.wx}）</dt><dd>${G[x.qin]}</dd>`+gl(x.shen,'六神：'+x.shen);
     if(x.shi)h+=gl('世','世爻');if(x.ying)h+=gl('應','應爻');
@@ -10220,7 +10220,7 @@ const QM_INST=`【解讀要求】
 3. 豎看：逐一看每個用神宮內的星與宮、門與宮（迫、制、和、義）、天盤干加地盤干（十干克應，依資料包所列的名稱與要點，不要改用其他版本），以及所臨的八神。
 4. 論旺衰：依「五行生克速查」的月令旺衰判斷宮、門、干的強弱；九星用資料包另外給的「星旺衰」；再看空亡、入墓、擊刑。吉門要旺相才算真吉，凶門休囚則凶力減輕。
 5. 分主客：先說明這件事裡誰是主、誰是客（主動、先動、遠來者為客；被動、後動、固守者為主），再用資料包的「主客」提示判斷對哪一方有利。
-6. 看遠近快慢：用神在內盤主近而快，在外盤主遠而慢；伏吟主遲，反吟主速。
+6. 看遠近快慢：用神在內盤主近而快，在外盤主遠而慢；伏吟主遲，反吟主速。若要給出應期，依資料包的「定應期參考」，換算成日期時查「應期換算表」，不要自行推算干支。
 7. 權衡：門的分量最重，星與三奇次之，八神再次；得門不得奇尚可用，得奇不得門不算吉；先看凶格，再論吉格。多個用神互相印證的結論才可靠。
 8. 給出明確的結論與具體建議；先用一兩句白話講整體態勢，再分點列依據；術語第一次出現時用一句話解釋。
 9. 只使用資料包中的盤面資料，不要自行重新排盤；資訊不足之處請直接指出。
@@ -10337,7 +10337,7 @@ function renderQm(save){
   </div>
   ${notesCard('qm')}
   <div class="row" style="margin-top:18px"><button class="btn ghost grow" data-go="qm-ask">再起一局</button></div>`;
-  bindCta('qm',pack,QM_INST,qmTiming(cal,r)+'\n\n'+dayTable(cal));
+  bindCta('qm',pack+'\n\n'+qmTiming(cal,r)+'\n\n'+dayTable(cal),QM_INST);
   $$('#qm-out .qc').forEach(el=>el.onclick=()=>{const p=+el.dataset.p,c=r.cells[p];
     if(p===5){sheet('中五宮・中央',`<dt>地盤干 ${c.di}・暗干 ${c.an}</dt><dd>中宮不排門與神；天禽星寄在坤二宮，與天芮同看。</dd>`);return}
     const star=c.star.slice(0,2);
