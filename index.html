@@ -284,6 +284,13 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
 .arcbar i{position:absolute;top:0;height:100%;border-radius:4px;background:var(--accent)}
 .qremind{border-left:2px solid var(--accent);padding:4px 12px;margin:4px 0 8px;font-size:14.5px;color:var(--mute);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .qremind b{color:var(--ink);font-weight:400}
+#toast{position:fixed;left:50%;bottom:30px;transform:translate(-50%,16px);background:var(--ink);color:var(--bg);padding:11px 20px;border-radius:999px;font-size:15px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:40;max-width:88vw;text-align:center;box-shadow:0 8px 24px -8px rgba(0,0,0,.6)}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+.tc{position:relative}
+.tc.invite{filter:drop-shadow(0 0 9px rgba(220,181,97,.75))}
+.tc.invite .tc-in{animation:invite 1.5s ease-in-out infinite}
+@keyframes invite{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.tc.invite::after{content:"點我翻開";position:absolute;left:50%;top:-11px;transform:translateX(-50%);background:#dcb561;color:#1b1406;font-size:11.5px;font-weight:700;border-radius:999px;padding:1px 9px;white-space:nowrap;z-index:3;animation:pop .35s ease}
 /* 白話說明抽屜 */
 #sheet{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:flex-end;justify-content:center;z-index:20}
 #sheet.on{display:flex}
@@ -293,7 +300,10 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
 #sheet dl{margin:0}
 #sheet dt{font-weight:600;margin-top:12px}
 #sheet dd{margin:2px 0 0;color:var(--mute);font-size:15px}
-.hist button{display:block;width:100%;text-align:left;background:transparent;border:0;border-bottom:1px dashed var(--line);padding:10px 2px}
+.hrow{display:flex;align-items:center;gap:8px;border-bottom:1px dashed var(--line)}
+.hist .hmain{flex:1;min-width:0;display:block;text-align:left;background:transparent;border:0;padding:10px 2px}
+.hist .hdel{flex:none;background:transparent;border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:13px;color:var(--mute)}
+.hist .hdel.arm{border-color:var(--red);color:var(--red);font-weight:600}
 .hist small{color:var(--mute)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -317,9 +327,15 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
   <div class="steps"><span class="on"></span><span></span><span></span></div><div class="steplabel">六爻　第一步・立問</div>
   <h2 class="serif">你想問的是哪一件事？</h2>
   <textarea id="ly-q" placeholder="例如：這次轉職面試會不會順利錄取？"></textarea>
+  <div class="qhint" id="ly-qhint" hidden></div>
+  <div class="hint" style="margin-top:14px">這件事屬於哪一類？選了之後，資料包會標出用神、原神、忌神、仇神</div>
+  <div class="topics" id="ly-topics"></div>
+  <div class="qhint" id="ly-topic-tip" hidden></div>
+  <div class="hint" style="margin-top:14px">替誰問？（替別人問時，用神要改看那個人）</div>
+  <div class="topics" id="ly-who"></div>
   <ul class="tips"><li>一卦只問一件事，問得越具體越好。</li><li>同一件事不要反覆問。</li><li>先深呼吸，把心放在這個問題上。</li></ul>
   <details><summary>不是現在搖的？改起卦時間</summary><label class="f"><span>起卦時間（留空＝搖卦當下）</span><input type="datetime-local" id="ly-t"></label></details>
-  <div style="margin-top:22px"><button class="btn wide" data-go="ly-cast">我想好了，開始起卦</button></div>
+  <div style="margin-top:22px"><button class="btn wide" id="ly-start">我想好了，開始起卦</button></div>
 </section>
 
 <!-- 六爻 2：起卦 -->
@@ -366,6 +382,7 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
   <div class="hint" style="margin-top:14px">這件事屬於哪一類？選了之後，資料包會列出這類問題該看的用神（可不選）</div>
   <div class="topics" id="qm-topics"></div>
   <div class="qhint" id="qm-topic-tip" hidden></div>
+  <div id="qm-side-box" hidden><div class="hint" style="margin-top:12px">你是哪一方？（奇門以乙代表女方、庚代表男方）</div><div class="topics" id="qm-side"></div></div>
   <div class="card">
     <div class="row" style="justify-content:space-between"><div><div class="hint">起局時刻</div><b id="qm-now-label" style="font-size:19px"></b></div><button class="btn ghost" id="qm-edit-time" style="padding:8px 16px;font-size:15px">改時間</button></div>
     <div id="qm-time-box" hidden><label class="f"><span>指定時刻（事情發生或起念的那一刻）</span><input type="datetime-local" id="qm-t"></label></div>
@@ -417,7 +434,7 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
     <div class="slots" id="tr-slots"></div>
     <div id="tr-deck"></div>
     <button class="btn shake serif" id="tr-shuffle">洗牌</button>
-    <p class="hint center" style="margin-top:16px"><button class="link" id="tr-reshuffle">重新洗牌</button></p>
+    <p class="hint center" style="margin-top:16px"><button class="link" id="tr-undo" hidden>收回上一張</button>　<button class="link" id="tr-reshuffle">重新洗牌</button></p>
   </div>
   <div id="tr-manual" hidden>
     <p class="hint">用你自己的牌洗牌、抽牌，照牌陣位置的順序，把每張牌和正逆位記下來。</p>
@@ -431,8 +448,9 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
 <section class="view" id="v-tr-result"><div class="steps"><span class="on"></span><span class="on"></span><span class="on"></span></div><div class="steplabel">塔羅　第三步・開牌</div><div id="tr-out"></div></section>
 
 <!-- 紀錄 -->
-<section class="view" id="v-hist"><h2 class="serif">我的紀錄</h2><p class="hint">只存在這台裝置的瀏覽器裡。點一筆可重新打開。</p><div class="hist" id="hist"></div><button class="btn ghost" id="hist-clear" style="margin-top:16px">清空紀錄</button></section>
+<section class="view" id="v-hist"><h2 class="serif">我的紀錄</h2><p class="hint">只存在這台裝置的瀏覽器裡。點一筆可重新打開；按右邊的「刪除」可以只刪那一筆。</p><div class="hist" id="hist"></div><button class="btn ghost" id="hist-clear" style="margin-top:16px">清空紀錄</button></section>
 </main>
+<div id="toast" role="status" aria-live="polite"></div>
 <div id="sheet"><div class="box"><div id="sheet-body"></div><button class="btn ghost wide" id="sheet-close" style="margin-top:18px">知道了</button></div></div>
 
 <script>/* lunar-javascript (c) 2018 6tail, MIT License. Full notice: THIRD-PARTY-NOTICES.txt */
@@ -9627,7 +9645,7 @@ const QM_TOPICS = {
   love: { n: '感情婚姻', sym: [
       ['乙', ['tian', '乙'], '女方'], ['庚', ['tian', '庚'], '男方'], ['六合', ['god', '六合'], '媒人，或這段關係本身'],
       ['丁', ['tian', '丁'], '傳統上代表介入的女性；沒有其他依據時不得據此認定有第三者'], ['丙', ['tian', '丙'], '傳統上代表介入的男性；同上'] ],
-    tip: '以乙、庚兩宮的生克或比和看雙方關係，並參考雙方年命的落宮；相生、比和又得吉門吉格較順，相沖相克較難。已婚者看與本人相合之干。' },
+    tip: '以乙、庚兩宮的生克或比和看雙方關係，並參考雙方年命的落宮；相生、比和又得吉門吉格較順，相沖相克較難。已婚者看與本人相合之干。乙、庚的取法以男女為前提；不適用時，改以日干為自己、時干為對方。' },
   work: { n: '工作事業', sym: [
       ['開門', ['gate', '開門'], '文職工作與任職單位'], ['杜門', ['gate', '杜門'], '武職、技術或保密性質的工作'], ['值符', ['zhifu'], '直屬上司'],
       ['年干', ['pillar', 'year'], '高層主管'], ['月干', ['pillar', 'month'], '同事'], ['日干', ['pillar', 'day'], '求測者本人（與年命並看）'], ['時干', ['pillar', 'hour'], '下屬或基層同仁'] ],
@@ -9741,6 +9759,120 @@ function qmGeju(cal, r) {
 }
 if (typeof module !== 'undefined' && module.exports) module.exports = { qmGeju };
 
+/* 六爻：依所問類別與代占對象取用神，標出原神、忌神、仇神與應期參考。
+   取法與應期原則經逐章對照《增刪卜易》《卜筮正宗》原文（兩書皆為清代典籍）。 */
+const LY_QIN = ['父母', '兄弟', '子孫', '妻財', '官鬼']; // 相生次序，循環相生，隔一位相克
+const LY_TOPICS = {
+  money: { n: '求財', q: '妻財', tip: '妻財為財。子孫是財的來源，兄弟主競爭與破耗。' },
+  work: { n: '工作功名', q: '官鬼', tip: '求官職、升遷看官鬼；父母為文書與任職單位；子孫克官鬼，動則不利。若問的是一般生意、手藝的收入，改看妻財。' },
+  exam: { n: '考試錄取', q: '官鬼', tip: '能否錄取以官鬼為主，父母為文章、試卷，兩者並看：父母旺而官鬼無氣仍難取。子孫克官鬼、妻財克父母，動則不利。' },
+  docs: { n: '文書證照合約', q: '父母', tip: '父母為文書、證照、合約。妻財克父母，動則不利文書。' },
+  loveM: { n: '感情（男問女）', q: '妻財', tip: '男方問，以妻財為重；世爻為自己，應爻只作輔助參考；兄弟為競爭者。' },
+  loveF: { n: '感情（女問男）', q: '官鬼', tip: '女方問，以官鬼為重；世爻為自己，應爻只作輔助參考；子孫克官鬼。' },
+  loveN: { n: '感情（不分性別）', q: '應', tip: '不依性別取六親，以世爻為自己、應爻為對方，看兩爻的旺衰與彼此的生克。對象不明確，或不適用男問女、女問男時用這個。' },
+  health: { n: '自身健康', q: '世', tip: '世爻為自己，官鬼為病，子孫為醫藥。這只是文化上的參考，身體不適請就醫。' },
+  kids: { n: '子女晚輩', q: '子孫', tip: '子孫為子女、晚輩，也代表寵物。父母克子孫。' },
+  elders: { n: '長輩・房屋車輛', q: '父母', tip: '父母為長輩，也代表房屋、車輛與文件。妻財克父母。' },
+  peers: { n: '兄弟朋友', q: '兄弟', tip: '兄弟為手足與知交朋友。官鬼克兄弟。' },
+  lawsuit: { n: '官司爭執', q: '世', tip: '世爻為自己，應爻為對方，官鬼為官方與法律，父母為狀紙、案卷。子孫持世或發動，多主和解、不成訟。' },
+  travel: { n: '出行', q: '世', tip: '世爻為出行的人，應爻為目的地。看世爻的旺衰，以及世爻與應爻的生克。' },
+  lost: { n: '失物', q: '妻財', tip: '一般財物看妻財；若遺失的是文件、證件，改看父母。' },
+  self: { n: '自身運勢', q: '世', tip: '世爻為自己，看世爻的旺衰，以及它受到哪些爻的生克。' },
+};
+// 代占：替誰問。有親屬稱謂的依六親，沒有稱謂或交情淺的人看應爻。
+const LY_WHO = {
+  '': { n: '自己問自己的事' },
+  parent: { n: '替父母長輩問', q: '父母' }, husband: { n: '替丈夫問', q: '官鬼' }, wife: { n: '替妻子問', q: '妻財' },
+  child: { n: '替子女問', q: '子孫' }, sibling: { n: '替兄弟姊妹、知交問', q: '兄弟' }, other: { n: '替其他人問', q: '應' },
+};
+const LY_SS = { 金: ['巳', '酉', '丑', '寅'], 木: ['亥', '卯', '未', '申'], 水: ['申', '子', '辰', '巳'], 土: ['申', '子', '辰', '巳'], 火: ['寅', '午', '戌', '亥'] }; // 長生、帝旺、墓、絕
+const lySS = (wx, z) => { const i = LY_SS[wx].indexOf(z); return i < 0 ? '' : ['長生', '帝旺', '墓', '絕'][i]; };
+const LY_FANYIN = { 乾: '巽', 巽: '乾', 坎: '離', 離: '坎', 艮: '坤', 坤: '艮', 震: '兌', 兌: '震' };
+function lyGuaNotes(r) {
+  const L = [], b = r.ben, v = r.bian; if (!v) return L;
+  const k = x => x.liuChong ? '六沖' : x.liuHe ? '六合' : '';
+  if (k(b) && k(v)) L.push(`卦的變化：${k(b)}變${k(v)}。${k(b) === '六沖' && k(v) === '六合' ? '先散後聚' : k(b) === '六合' && k(v) === '六沖' ? '先聚後散' : '前後同性質'}。`);
+  if (LY_FANYIN[b.lower] === v.lower) L.push(`內卦反吟：內卦由${b.lower}變${v.lower}。主反覆不定。`);
+  if (LY_FANYIN[b.upper] === v.upper) L.push(`外卦反吟：外卦由${b.upper}變${v.upper}。主反覆不定。`);
+  return L;
+}
+function lyYong(r, cal, key, who, YAO, zhiWx, wxRel) {
+  const T = LY_TOPICS[key], W = LY_WHO[who || ''] || LY_WHO['']; if (!T && !W.q) return null;
+  const P = cal.pillars, L = [], shi = r.rows.find(x => x.shi), ying = r.rows.find(x => x.ying), WX = '木火土金水', pw = r.ben.palaceWx;
+  const qinOfWx = w => { const i = WX.indexOf(pw), j = WX.indexOf(w); return i === j ? '兄弟' : (i + 1) % 5 === j ? '子孫' : (j + 1) % 5 === i ? '父母' : (i + 2) % 5 === j ? '妻財' : '官鬼'; };
+  const src = W.q || T.q, fixed = src === '世' ? shi : src === '應' ? ying : null, yq = fixed ? fixed.qin : src, i = LY_QIN.indexOf(yq);
+  const role = { 原神: LY_QIN[(i + 4) % 5], 忌神: LY_QIN[(i + 3) % 5], 仇神: LY_QIN[(i + 2) % 5] };
+  const dz = P.day[1];
+  const desc = x => {
+    const ex = [], ds = lySS(x.wx, dz); if (ds) ex.push(ds + '於日');
+    if (x.move) { const bs = lySS(x.wx, x.bian.zhi); if (bs) ex.push('化' + bs); }
+    return `${YAO[x.pos - 1]} ${x.qin} ${x.gan}${x.zhi}${x.wx}（${x.move ? '動，化 ' + x.bian.qin + ' ' + x.bian.gan + x.bian.zhi + x.bian.wx + (x.bian.notes.length ? '，' + x.bian.notes.join('、') : '') : '靜'}${x.marks.length ? '；' + x.marks.join('、') : ''}${ex.length ? '；' + ex.join('、') : ''}${x.shi ? '；持世' : ''}${x.ying ? '；臨應' : ''}）`;
+  };
+  const where = q => {
+    const a = r.rows.filter(x => x.qin === q).map(desc);
+    r.rows.forEach(x => { if (x.move && x.bian.qin === q && x.qin !== q) a.push(`變爻：${YAO[x.pos - 1]}動而化出 ${x.bian.qin} ${x.bian.gan}${x.bian.zhi}${x.bian.wx}`); });
+    r.rows.forEach(x => { if (x.fu && x.fu.qin === q) a.push(`伏神：伏於${YAO[x.pos - 1]}（飛神 ${x.qin} ${x.gan}${x.zhi}${x.wx}）之下，${x.fu.qin} ${x.fu.gan}${x.fu.zhi}${x.fu.wx}${x.fu.marks.length ? '（' + x.fu.marks.join('、') + '）' : ''}`); });
+    return a;
+  };
+  if (T) L.push(`所問類別：${T.n}`);
+  if (W.q) L.push(`代占：${W.n}。代占以所問之人對應的${src === '應' ? '應爻' : '六親'}為用神，世爻仍代表來問的人。`);
+  L.push(`用神：${fixed ? (src === '世' ? '世爻' : '應爻') + '（' + yq + '）' : yq}。${W.q ? '' : T.tip}`);
+  if (W.q && T && T.q !== '世' && T.q !== yq) { L.push(`所問之事的六親（${T.q}，作為事項參考）：`); where(T.q).forEach(x => L.push('　' + x)); }
+  const yong = fixed ? [desc(fixed)] : where(yq);
+  L.push('用神所在：' + (yong.length ? '' : '本卦、變爻、伏神都沒有出現'));
+  yong.forEach(x => L.push('　' + x));
+  const onGua = r.rows.filter(x => x.qin === yq);
+  if (!fixed && onGua.length > 1) L.push('　用神不只一處：取旺捨衰、取動捨靜，其次取持世、臨月建或日辰者；論應期時取旬空、月破的那一爻。請說明你取哪一個。');
+  const mq = qinOfWx(zhiWx(P.month[1])), dq = qinOfWx(zhiWx(dz));
+  L.push(`月建 ${P.month[1]} 的六親為${mq}，日辰 ${dz} 的六親為${dq}。${!fixed && !onGua.length && (mq === yq || dq === yq) ? '用神不上卦，而' + (mq === yq ? '月建' : '') + (mq === yq && dq === yq ? '、' : '') + (dq === yq ? '日辰' : '') + '正是用神，可直接取用。' : ''}`);
+  const score = x => (x.move ? 4 : 0) + (x.marks.includes('臨月建') || x.marks.includes('臨日辰') ? 2 : 0) + (x.shi ? 1 : 0);
+  const main = fixed || onGua.slice().sort((a, b) => score(b) - score(a))[0] || null;
+  const fuRow = !main ? r.rows.find(x => x.fu && x.fu.qin === yq) : null;
+  if (main) L.push(`用神與月日：${wxRel(zhiWx(P.month[1]), main.wx, '月建' + P.month[1], '用神')}；${wxRel(zhiWx(dz), main.wx, '日辰' + dz, '用神')}。`);
+  ['原神', '忌神', '仇神'].forEach(k => {
+    const a = where(role[k]);
+    L.push(`${k}（${role[k]}，${{ 原神: '生用神', 忌神: '克用神', 仇神: '克原神、生忌神' }[k]}）：${a.length ? '' : '不上卦'}`);
+    a.forEach(x => L.push('　' + x));
+  });
+  // 待判定的標記：程式列事實，結論交給解讀者
+  const NEED = ['旬空', '月破', '日沖', '月合', '日合'], seen = new Set(), todo = [];
+  const roleOf = x => x === main || (!fixed && x.qin === yq) ? '用神' : x.qin === role.原神 ? '原神' : x.qin === role.忌神 ? '忌神' : x.qin === role.仇神 ? '仇神' : '';
+  r.rows.forEach(x => {
+    const ms = x.marks.filter(k => NEED.includes(k)), rl = roleOf(x) || (x.shi ? '世爻' : x.ying ? '應爻' : '');
+    if (!ms.length || !rl || seen.has(x.pos)) return; seen.add(x.pos);
+    const helpers = r.rows.filter(m => m.move && m !== x).map(m => { const t = wxRel(m.wx, x.wx, YAO[m.pos - 1], '此爻'); return /生此爻|克此爻/.test(t) ? t : ''; }).filter(Boolean);
+    todo.push(`${YAO[x.pos - 1]} ${x.qin} ${x.gan}${x.zhi}${x.wx}（${rl}）｜待判定：${ms.join('、')}｜依據：${x.move ? '此爻發動' : '此爻安靜'}；${wxRel(zhiWx(P.month[1]), x.wx, '月建' + P.month[1], '此爻')}；${wxRel(zhiWx(dz), x.wx, '日辰' + dz, '此爻')}；${helpers.length ? '動爻中 ' + helpers.join('、') : '沒有動爻生克此爻'}`);
+  });
+  if (todo.length) { L.push('待判定的標記（下列事實由程式列出；請在回答中逐項寫出判定與理由）：'); todo.forEach(x => L.push('　' + x)); }
+  const timingRow = !fixed && onGua.find(x => x.marks.includes('旬空') || x.marks.includes('月破')) || main;
+  return { lines: L, main: timingRow, fuRow, yq };
+}
+function lyTiming(r, cal, key, who, YAO, ZCH, ZHE) {
+  const y = lyYong(r, cal, key, who, YAO, () => '', () => ''); if (!y) return '';
+  const head = '【六爻應期參考】（原則依《增刪卜易》《卜筮正宗》；地支由程式列出）', dz = cal.pillars.day[1], st = [];
+  const tail = '使用方式：先判斷用神的旺衰、動靜與空破，再從上面選出符合的一條，並說明理由。近事應在日、時，遠事應在月、年，由所問之事的性質決定。若你改取別的用神，請依同樣原則自行換算。盤面沒有可用的依據時直接說明，不要猜日期；換算日期時請查下面的應期換算表。';
+  if (!y.main) {
+    if (!y.fuRow) return [head, '用神不上卦也沒有伏神，沒有可用的應期依據。', tail].join('\n');
+    const f = y.fuRow.fu, fz = y.fuRow.zhi;
+    return [head, `用神是伏神：${f.qin} ${f.gan}${f.zhi}${f.wx}，伏於${YAO[y.fuRow.pos - 1]}（飛神地支 ${fz}）之下。`,
+      `・伏神待出 → 逢 ${f.zhi} 的日子（伏神值日而出），或逢 ${ZCH[fz]} 的日子（沖動飛神）`, '・伏神休囚又被日月或飛神克制者，不得出，不論應期', tail].join('\n');
+  }
+  const m = y.main, z = m.zhi, mu = LY_SS[m.wx][2];
+  if (m.marks.includes('旬空')) st.push(`旬空 → 出空之後逢 ${z} 的日子（填實），或逢 ${ZCH[z]} 的日子（沖空）。旺相、發動或得日月動爻生扶者不作真空；休囚安靜又受克為真空，不論應期`);
+  if (m.marks.includes('月破')) st.push(`月破 → 逢 ${z} 之時（實破）或逢 ${ZHE[z]} 之時（逢合），或出了本月之後。靜而無生扶者為到底破，不論應期`);
+  if (m.marks.includes('月合') || m.marks.includes('日合') || (m.move && m.bian.notes.includes('化合'))) st.push(`逢合 → 沖開之時：逢 ${ZCH[z]}（沖用神）或逢 ${ZCH[ZHE[z]]}（沖合神）的日子`);
+  if (dz === mu || (m.move && m.bian.zhi === mu)) st.push(`入墓（墓在 ${mu}）→ 逢 ${ZCH[mu]} 的日子（沖開墓庫）`);
+  if (m.move) {
+    st.push(`發動 → 動而逢合逢值：逢 ${ZHE[z]} 或逢 ${z} 的日子`);
+    if (m.bian.notes.includes('化進神')) st.push(`化進神 → 本爻逢值逢合：逢 ${z} 或 ${ZHE[z]} 的日子`);
+    if (m.bian.notes.includes('化退神')) st.push(`化退神 → 變爻逢值逢沖：逢 ${m.bian.zhi} 或 ${ZCH[m.bian.zhi]} 的日子`);
+  } else {
+    st.push(`安靜 → 靜而逢值逢沖：逢 ${z} 或逢 ${ZCH[z]} 的日子`);
+    st.push(`若用神衰絕 → 遇生遇旺之時（受生或當令的月日）；若用神太旺 → 逢墓逢沖：逢 ${mu} 或 ${ZCH[z]} 的日子`);
+  }
+  return [head, `用神取 ${YAO[m.pos - 1]} ${m.qin} ${m.gan}${m.zhi}${m.wx}。其地支 ${z}：值為 ${z}，相沖為 ${ZCH[z]}，相合為 ${ZHE[z]}，墓在 ${mu}。`, ...st.map(x => '・' + x), tail].join('\n');
+}
+
 const starState=(sw,mw)=>{const i=WXS.indexOf(sw),j=WXS.indexOf(mw);return (i+1)%5===j?'旺':i===j?'相':(j+1)%5===i?'廢':(i+2)%5===j?'休':'囚'};
 const gateRel=(gw,pw)=>{const i=WXS.indexOf(gw),j=WXS.indexOf(pw);return i===j?'門宮比和':(i+2)%5===j?'門克宮（門迫）':(j+2)%5===i?'宮克門（門制）':(i+1)%5===j?'門生宮（和）':'宮生門（義）'};
 const PALZ={1:'子',8:'丑寅',3:'卯',4:'辰巳',9:'午',2:'未申',7:'酉',6:'戌亥'};
@@ -9810,9 +9942,14 @@ function setTheme(t){if(t==='paper')document.documentElement.dataset.theme='pape
 $('#theme-btn').onclick=()=>setTheme(document.documentElement.dataset.theme==='paper'?'night':'paper');
 try{setTheme(localStorage.getItem('paipan-theme')||'night')}catch(e){}
 
+let toastT=0;
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2200)}
 function copyText(text,after){
-  const done=()=>after.classList.add('on');
-  const fb=()=>{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();done()};
+  const btn=document.activeElement&&document.activeElement.tagName==='BUTTON'?document.activeElement:null;
+  const done=()=>{after.classList.add('on');toast('已複製，可以貼到 AI 對話框了');
+    if(btn&&!btn.dataset.orig){btn.dataset.orig=btn.textContent;btn.textContent='已複製 ✓';setTimeout(()=>{btn.textContent=btn.dataset.orig;delete btn.dataset.orig},1800)}};
+  const fail=()=>toast('複製失敗，請展開下方的文字手動複製');
+  const fb=()=>{try{const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');ta.remove();ok?done():fail()}catch(e){fail()}};
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done,fb);else fb();
 }
 function ctaCard(id,what){return `<div class="card cta"><h3 class="serif">下一步：請 AI 幫你解讀</h3><p>按下按鈕會複製「解讀指令＋${what}」，貼到你習慣的 AI 對話框送出即可，之後可以繼續追問。</p>
@@ -9861,15 +9998,45 @@ function bindNotes(id){
 function renderH(){const h=loadH(),el=$('#hist');el.innerHTML=h.length?'':'<p class="hint">還沒有紀錄。</p>';
   h.forEach(r=>{const b=document.createElement('button');b.innerHTML=`<small>${{liuyao:'六爻',qimen:'奇門',tarot:'塔羅'}[r.type]}・${esc(r.time.replace('T',' '))}・${esc(r.title||'')}</small><br>${esc((r.q||'（未填問題）').slice(0,60))}${r.outcome?`<br><small>結果：${esc(r.outcome.slice(0,50))}</small>`:r.note?'<br><small>已記解讀，尚未記結果</small>':''}`;
     b.onclick=()=>{curId=r.id;if(r.type==='tarot'){$('#tr-q').value=r.q;$('#tr-t').value=r.time;$('#tr-a').value=r.a||'';$('#tr-b').value=r.b||'';$('#tr-rev').checked=r.rev!==false;tr.spread=r.spread;tr.cards=r.cards.map(x=>({...x}));tr.how=r.how;renderTr(false)}
-      else if(r.type==='liuyao'){$('#ly-q').value=r.q;$('#ly-t').value=r.time;ly.lines=r.lines.slice();ly.how=r.how;renderLy(false)}
-      else{$('#qm-q').value=r.q;$('#qm-t').value=r.time;setFixed(true);$('#qm-y1').value=r.y1||'';$('#qm-y2').value=r.y2||'';$('#qm-b1').checked=!!r.b1;$('#qm-b2').checked=!!r.b2;$('#qm-ts').checked=!!r.ts;$('#qm-lng').value=r.lng;setMethod(r.method||'chaibu');qmTopic=r.topic||'';drawQmTopics();renderQm(false)}};
-    el.appendChild(b)})}
+      else if(r.type==='liuyao'){$('#ly-q').value=r.q;$('#ly-t').value=r.time;ly.lines=r.lines.slice();ly.how=r.how;ly.topic=r.topic||'';ly.who=r.who||'';drawLyTopics();renderLy(false)}
+      else{$('#qm-q').value=r.q;$('#qm-t').value=r.time;setFixed(true);$('#qm-y1').value=r.y1||'';$('#qm-y2').value=r.y2||'';$('#qm-b1').checked=!!r.b1;$('#qm-b2').checked=!!r.b2;$('#qm-ts').checked=!!r.ts;$('#qm-lng').value=r.lng;setMethod(r.method||'chaibu');qmTopic=r.topic||'';qmSide=r.side||'';drawQmTopics();renderQm(false)}};
+    const row=document.createElement('div');row.className='hrow';b.className='hmain';row.appendChild(b);
+    const d=document.createElement('button');d.type='button';d.className='hdel';d.textContent='刪除';d.setAttribute('aria-label','刪除這筆紀錄');
+    d.onclick=()=>{if(d.dataset.arm){try{localStorage.setItem(HK,JSON.stringify(loadH().filter(x=>x.id!==r.id)))}catch(e){}if(curId===r.id)curId=null;renderH();return}
+      d.dataset.arm='1';d.textContent='確定刪除？';d.classList.add('arm');setTimeout(()=>{if(d.isConnected){delete d.dataset.arm;d.textContent='刪除';d.classList.remove('arm')}},3500)};
+    row.appendChild(d);el.appendChild(row)})}
 $('#hist-clear').onclick=()=>{if(loadH().length&&confirm('確定清空所有紀錄？')){try{localStorage.removeItem(HK)}catch(e){}renderH()}};
 
 /* ================= 六爻 ================= */
 const YAO=['初爻','二爻','三爻','四爻','五爻','上爻'], VAL={6:'老陰',7:'少陽',8:'少陰',9:'老陽'};
 const VSAY={6:'三枚都是字面：老陰，這一爻會變',7:'一背兩字：少陽',8:'兩背一字：少陰',9:'三枚都是背面：老陽，這一爻會變'};
-const ly={lines:[],how:'',busy:false};
+const ly={lines:[],how:'',busy:false,topic:'',who:''};
+function drawLyTopics(){
+  $('#ly-topics').innerHTML=Object.entries(LY_TOPICS).map(([k,t])=>`<button type="button" data-t="${k}" class="${k===ly.topic?'on':''}">${t.n}</button>`).join('');
+  const t=LY_TOPICS[ly.topic],el=$('#ly-topic-tip');el.hidden=!t;
+  el.innerHTML=t?`用神取「${t.q==='世'?'世爻':t.q==='應'?'應爻':t.q}」。${t.tip}`:'';
+  $('#ly-who').innerHTML=Object.entries(LY_WHO).map(([k,w])=>`<button type="button" data-w="${k}" class="${k===ly.who?'on':''}">${w.n}</button>`).join('');
+}
+$('#ly-who').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;ly.who=b.dataset.w;drawLyTopics();lyHint()};
+// 依問題文字提醒使用者把類別和對象選清楚
+const LY_GUESS=[['loveN',/感情|愛情|喜歡|交往|復合|曖昧|前任|男友|女友|男朋友|女朋友|老公|老婆|丈夫|妻子|對象|桃花|結婚|婚姻|分手|我跟他|我和他|我跟她|我和她|我們之間/],
+  ['exam',/考試|考上|錄取|面試|應徵|甄試|榜/],['work',/工作|升遷|升職|轉職|換工作|職位|主管|老闆|公司|創業|事業/],
+  ['money',/錢|財|投資|股票|收入|薪水|獲利|生意|買賣|賺/],['docs',/合約|簽約|證照|執照|簽證|文件|申請/],['health',/身體|健康|生病|手術|病|痛/],
+  ['lawsuit',/官司|訴訟|告|法院|糾紛/],['travel',/出國|旅行|出差|搬家|出行/],['lost',/不見|遺失|弄丟|掉了|找不到/]];
+function lyHint(nudge){
+  const q=$('#ly-q').value.trim(),el=$('#ly-qhint');let h='';
+  const g=LY_GUESS.find(([,re])=>re.test(q)),love=ly.topic.startsWith('love');
+  if(g&&g[0]==='loveN'&&!love)h='這看起來是感情的問題。六爻要先知道你是哪一方，才知道看哪一爻代表對方：<br><button type="button" class="link" data-pick="loveM">我是男方，問女方</button>　<button type="button" class="link" data-pick="loveF">我是女方，問男方</button>　<button type="button" class="link" data-pick="loveN">不分性別</button>';
+  else if(g&&!ly.topic)h=`這看起來是「${LY_TOPICS[g[0]].n}」的問題。<button type="button" class="link" data-pick="${g[0]}">選這個類別</button>`;
+  else if(!ly.topic&&!ly.who&&/他|她|對方|那個人/.test(q))h='問題裡提到另一個人。他是你的誰？請在下面選類別；如果你是替他問，再選「替誰問」。不選的話，代表對方的那一爻只能讓 AI 自己猜。';
+  else if(nudge&&!ly.topic&&!ly.who)h='還沒選類別。不選也可以排卦，但用神要由 AI 自己判斷，比較容易取錯。要直接起卦，再按一次按鈕。';
+  el.innerHTML=h;el.hidden=!h;
+}
+$('#ly-qhint').onclick=e=>{const b=e.target.closest('[data-pick]');if(!b)return;ly.topic=b.dataset.pick;drawLyTopics();lyHint()};
+$('#ly-q').oninput=()=>{lyNudged=false;lyHint()};
+let lyNudged=false;
+$('#ly-start').onclick=()=>{if(!ly.topic&&!ly.who&&!lyNudged){lyNudged=true;lyHint(true);$('#ly-qhint').scrollIntoView({block:'center',behavior:'smooth'});return}go('ly-cast')};
+$('#ly-topics').onclick=e=>{const b=e.target.closest('[data-t]');if(!b)return;ly.topic=ly.topic===b.dataset.t?'':b.dataset.t;drawLyTopics();lyHint()};
 $$('#ly-mode button').forEach(b=>b.onclick=()=>{$$('#ly-mode button').forEach(x=>x.classList.toggle('on',x===b));['online','manual','num'].forEach(m=>$('#ly-'+m).hidden=b.dataset.m!==m);$('#ly-cast-h').textContent=b.dataset.m==='num'?'報兩個數字，直接成卦':'擲六次銅錢，由下往上成卦'});
 function drawBuild(){
   $('#hexbuild').innerHTML=YAO.map((n,i)=>{const v=ly.lines[i];return `<div class="slot ${v?'done':''} ${v&&(v===6||v===8)?'yin':''} ${v===6||v===9?'mv':''}"><span class="nm">${n}</span><span class="bar"></span><span class="tag">${v?VAL[v]+(v===9?' ○':v===6?' ✕':''):''}</span></div>`}).join('');
@@ -9917,13 +10084,20 @@ $('#ly-num-go').onclick=()=>{
 };
 const LY_INST=`【解讀要求】
 請依據以上排盤資料，以傳統六爻（納甲筮法）為我解讀：
-1. 先依所問之事確認用神，並說明取用理由。
+1. 定用神：資料包若已標出用神、原神、忌神、仇神，以它為主；你若認為這件事應取別的用神，請說明理由後改取。資料包沒有標出時，依所問之事自行選定並說明理由。
 2. 分析用神、原神、忌神、仇神在月建、日辰下的旺衰，以及動變、旬空、月破、伏神與飛神的關係。
 3. 分析世爻、應爻的狀態與彼此關係。
 4. 給出明確的結論、可能的應期，以及具體建議。
-5. 只使用資料包中的盤面資料，不要自行改卦、重排納甲或補算未列的伏神與神煞；資訊不足之處請直接說明無法據此判斷。
-6. 我的問題若夾帶期待或預設結論，不要順著說；先看盤面支持哪一邊，再寫反證。
-7. 先用一兩句白話講整體態勢，再分點列關鍵依據；術語第一次出現時用一句話解釋。`;
+5. 資料包若列出「待判定的標記」，請在解讀的一開始先給一段「標記判定」，逐項寫成「哪一爻・哪個標記 → 判定結果（例如真空或不空、到底破或不破、暗動或日破、合起或合絆）：一句理由」。每一項都要寫，不可省略；後面的分析必須和這裡的判定一致。判準如下，不能只看字面：
+   - 旬空：旺相、發動，或得日月、動爻生扶者不作真空；休囚安靜又受克者才是真空。
+   - 月破：臨日辰者不論破；動爻雖破仍能生克他爻；靜而無生扶者為到底破。
+   - 日沖：靜爻旺相逢沖為暗動，靜爻休囚逢沖為日破，動爻逢沖為沖散。
+   - 月合、日合：靜爻逢合為合起，動爻逢合為合絆，要待沖開。
+   - 化空、化月破不作無用論，應在沖空、實空、實破之時。
+   - 變爻只能生克本位的動爻，不能生克其他爻；六神只作輔助，不單憑六神定吉凶。
+6. 只使用資料包中的盤面資料，不要自行改卦、重排納甲或補算未列的伏神與神煞；資訊不足之處請直接說明無法據此判斷。
+7. 我的問題若夾帶期待或預設結論，不要順著說；先看盤面支持哪一邊，再寫反證。
+8. 先用一兩句白話講整體態勢，再分點列關鍵依據；術語第一次出現時用一句話解釋。`;
 function lyPack(q,cal,r){
   const P=cal.pillars,b=r.ben,L=[];
   L.push('【六爻排盤資料包】');
@@ -9940,6 +10114,11 @@ function lyPack(q,cal,r){
     L.push(`動爻：${r.rows.filter(x=>x.move).map(x=>YAO[x.pos-1]).join('、')}`)}
   else L.push('變卦：無（六爻安靜，無動爻）');
   L.push(`世爻：${YAO[b.shi-1]}｜應爻：${YAO[b.ying-1]}`);
+  lyGuaNotes(r).forEach(x=>L.push(x));
+  const YG=lyYong(r,cal,ly.topic,ly.who,YAO,zhiWx,wxRel);
+  L.push('');
+  if(YG){L.push('用神（依所問類別與代占對象，由程式標出；取法依《增刪卜易》《卜筮正宗》）：');YG.lines.forEach(x=>L.push(x))}
+  else L.push('未選問題類別。請依所問之事選定用神並說明理由。通行取法：求財、買賣看妻財；求官職、升遷看官鬼；考試錄取以官鬼為主、父母為文章並看；文書、合約、房屋車輛、長輩看父母；子女、晚輩、醫藥看子孫；兄弟、朋友、競爭者看兄弟；感情，男問看妻財、女問看官鬼；問自己的身體、運勢、出行看世爻；官司看世爻與應爻；替別人問，有親屬稱謂的依六親，沒有稱謂的人看應爻。生用神者為原神，克用神者為忌神，克原神而生忌神者為仇神。');
   L.push('');
   L.push('各爻（由上爻至初爻；六親以本卦卦宮五行為準）：');
   r.rows.slice().reverse().forEach(x=>{
@@ -9997,7 +10176,7 @@ function renderLy(save){
   </div>
   ${notesCard('ly')}
   <div class="row" style="margin-top:18px"><button class="btn ghost grow" id="ly-again">再問另一件事</button></div>`;
-  bindCta('ly',pack,LY_INST,dayTable(cal));
+  const lt=lyTiming(r,cal,ly.topic,ly.who,YAO,ZCH,ZHE);bindCta('ly',pack,LY_INST,(lt?lt+'\n\n':'')+dayTable(cal));
   $$('#ly-out tr.tap').forEach(tr=>tr.onclick=()=>{const x=r.rows[+tr.dataset.pos-1];
     let h=`<dt>${x.qin} ${x.gan}${x.zhi}（${x.wx}）</dt><dd>${G[x.qin]}</dd>`+gl(x.shen,'六神：'+x.shen);
     if(x.shi)h+=gl('世','世爻');if(x.ying)h+=gl('應','應爻');
@@ -10005,18 +10184,21 @@ function renderLy(save){
     x.marks.forEach(m=>h+=gl(m));
     if(x.fu)h+=gl('伏神','伏神：'+x.fu.qin+' '+x.fu.gan+x.fu.zhi)+`<dd>${G[x.fu.qin]}</dd>`;
     sheet(YAO[x.pos-1]+(x.yang?'・陽爻':'・陰爻'),h)});
-  $('#ly-again').onclick=()=>{ly.lines=[];man=man.map(()=>[null,null,null]);drawMan();$('#ly-q').value='';$('#ly-t').value='';go('ly-ask')};
-  if(save)saveH({type:'liuyao',q,time:$('#ly-t').value,lines:ly.lines.slice(),how:ly.how,title:b.name+(r.bian?'→'+r.bian.name:'')});
+  $('#ly-again').onclick=()=>{ly.topic='';ly.who='';lyNudged=false;drawLyTopics();$('#ly-qhint').hidden=true;ly.lines=[];man=man.map(()=>[null,null,null]);drawMan();$('#ly-q').value='';$('#ly-t').value='';go('ly-ask')};
+  if(save)saveH({type:'liuyao',q,time:$('#ly-t').value,lines:ly.lines.slice(),how:ly.how,topic:ly.topic,who:ly.who,title:b.name+(r.bian?'→'+r.bian.name:'')});
   bindNotes('ly');go('ly-result');
 }
 
 /* ================= 奇門 ================= */
-let qmFixed=false, qmMethod='chaibu', qmTopic='';
+let qmFixed=false, qmMethod='chaibu', qmTopic='', qmSide='';
 function drawQmTopics(){
   $('#qm-topics').innerHTML=Object.entries(QM_TOPICS).map(([k,t])=>`<button type="button" data-t="${k}" class="${k===qmTopic?'on':''}">${t.n}</button>`).join('');
   const t=QM_TOPICS[qmTopic],el=$('#qm-topic-tip');el.hidden=!t;
   el.innerHTML=t?`資料包會列出：${t.sym.map(x=>x[0]).join('、')} 的落宮和各自代表什麼。`:'';
+  $('#qm-side-box').hidden=qmTopic!=='love';
+  $('#qm-side').innerHTML=[['f','我是女方'],['m','我是男方'],['','不指定']].map(([k,n])=>`<button type="button" data-s="${k}" class="${k===qmSide?'on':''}">${n}</button>`).join('');
 }
+$('#qm-side').onclick=e=>{const b=e.target.closest('[data-s]');if(!b)return;qmSide=b.dataset.s;drawQmTopics()};
 $('#qm-topics').onclick=e=>{const b=e.target.closest('[data-t]');if(!b)return;qmTopic=qmTopic===b.dataset.t?'':b.dataset.t;drawQmTopics()};
 function tickNow(){if(!qmFixed)$('#qm-t').value=nowLocal();$('#qm-now-label').textContent=(qmFixed?'':'現在　')+$('#qm-t').value.replace('T',' ')}
 setInterval(()=>{if($('#v-qm-ask').classList.contains('on'))tickNow()},20000);
@@ -10051,7 +10233,7 @@ function qmPack(q,cal,r,ts){
   L.push('【奇門遁甲排盤資料包】');
   L.push(`所占之事：${q||'（未填）'}`);
   const TP=QM_TOPICS[qmTopic];
-  if(TP)L.push(`所占類別：${TP.n}`);
+  if(TP)L.push(`所占類別：${TP.n}${qmTopic==='love'&&qmSide?'｜求測者是'+(qmSide==='f'?'女方（以天盤乙代表自己，庚代表對方）':'男方（以天盤庚代表自己，乙代表對方）'):''}`);
   L.push(`起局時刻：${ts?ts.clock+'（鐘錶時間）→ 真太陽時 '+cal.solar+`，經度 ${ts.lng}°，含均時差共修正 ${ts.off>=0?'+':''}${ts.off} 分鐘`:cal.solar+'（鐘錶時間）'}`);
   L.push(`農曆：${cal.lunar}`);
   L.push(`四柱：${P.year}年 ${P.month}月 ${P.day}日 ${P.hour}時（23:00 換日）`);
@@ -10165,7 +10347,7 @@ function renderQm(save){
     if(p===r.zhishiPal)h+=gl('值使','值使門在此');
     if(tags[p])h+=`<dt>${tags[p].join('、')} 落在這一宮</dt><dd>這是解讀時要優先看的位置。</dd>`;
     sheet(`${c.name}・${c.dir}（五行${c.wx}）`,h)});
-  if(save)saveH({type:'qimen',q,time:$('#qm-t').value,y1,y2,b1:$('#qm-b1').checked,b2:$('#qm-b2').checked,ts:$('#qm-ts').checked,lng,method:qmMethod,topic:qmTopic,title:`${r.yang?'陽':'陰'}遁${r.ju}局`});
+  if(save)saveH({type:'qimen',q,time:$('#qm-t').value,y1,y2,b1:$('#qm-b1').checked,b2:$('#qm-b2').checked,ts:$('#qm-ts').checked,lng,method:qmMethod,topic:qmTopic,side:qmSide,title:`${r.yang?'陽':'陰'}遁${r.ju}局`});
   bindNotes('qm');go('qm-result');
 }
 $('#qm-go').onclick=()=>renderQm(true);
@@ -10220,6 +10402,7 @@ function trEnter(){
   const sp=SP[tr.spread];
   $('#tr-draw-h').textContent=`${sp.name}：抽 ${sp.n} 張牌`;
   $('#tr-deck').innerHTML=`<div class="deckwrap"><div class="stack" id="tr-stack">${[0,1,2].map(()=>`<span class="sc">${T.back()}</span>`).join('')}</div></div>`;trSlots();
+  clearTimeout(tr.goT);$('#tr-undo').hidden=true;
   $('#tr-shuffle').hidden=false;$('#tr-msg').innerHTML='<span class="hint">78 張牌已備好</span><br>心裡想著問題，按下「洗牌」';
   tr.man=sp.pos.map(()=>({i:'',rev:false}));drawTrMan();
 }
@@ -10234,7 +10417,8 @@ function trFly(from,i){const to=$(`#tr-slots [data-i="${i}"]`);if(!to||!from.ani
   const dx=b.left+b.width/2-(a.left+a.width/2),dy=b.top+b.height/2-(a.top+a.height/2);
   f.animate([{transform:'none',opacity:1},{transform:`translate(${dx*.5}px,${dy*.5-30}px) scale(.8) rotate(-12deg)`,opacity:1,offset:.5},{transform:`translate(${dx}px,${dy}px) scale(${Math.min(b.width,b.height)/a.width}) rotate(0deg)`,opacity:.9}],{duration:520,easing:'cubic-bezier(.3,.7,.3,1)'});setTimeout(()=>f.remove(),540)}
 function trMsg(){const sp=SP[tr.spread],n=sp.n,k=tr.picks.length;
-  $('#tr-msg').innerHTML=k<n?`憑直覺點選 ${n} 張牌<br><span class="hint">已選 ${k} / ${n}　下一張是「${sp.pos[k][0]}」</span>`:'牌已選好<br><span class="hint">正在排牌陣…</span>'}
+  $('#tr-msg').innerHTML=k<n?`憑直覺點選 ${n} 張牌<br><span class="hint">已選 ${k} / ${n}　下一張是「${sp.pos[k][0]}」</span>`:'牌選好了<br><span class="hint">正在排牌陣…點錯了還可以收回上一張</span>';
+  $('#tr-undo').hidden=k===0;if(arc.el)arc.el.classList.toggle('done',k>=n)}
 $('#tr-shuffle').onclick=async()=>{
   if(tr.busy)return;tr.busy=true;$('#tr-shuffle').disabled=true;
   const st=$('#tr-stack');st.classList.remove('shuf');void st.offsetWidth;st.classList.add('shuf');$('#tr-msg').innerHTML='<span class="hint">洗牌中…</span>';
@@ -10303,8 +10487,11 @@ $('#tr-deck').onclick=async e=>{
   if(tr.picks.includes(k)||tr.picks.length>=n)return;
   tr.picks.push(k);trMsg();try{navigator.vibrate&&navigator.vibrate(12)}catch(_){}
   trFly(b.firstElementChild,tr.picks.length-1);b.classList.add('on');setTimeout(trSlots,430);
-  if(tr.picks.length===n){tr.busy=true;arc.el.classList.add('done');await sleep(1300);tr.cards=tr.picks.map(x=>({...tr.deck[x]}));tr.how='線上抽牌（密碼學亂數洗牌後，自行點選牌位）';tr.busy=false;renderTr(true)}
+  if(tr.picks.length===n){clearTimeout(tr.goT);tr.goT=setTimeout(trGo,1700)}
 };
+// 牌還蓋著時可以收回上一張；按下開牌後才鎖定
+$('#tr-undo').onclick=()=>{if(tr.busy||!tr.picks.length)return;clearTimeout(tr.goT);const k=tr.picks.pop(),el=$(`#tr-arc .ac[data-k="${k}"]`);if(el)el.classList.remove('on');trSlots();trMsg()};
+const trGo=()=>{const n=SP[tr.spread].n;if(tr.picks.length!==n||!$('#v-tr-draw').classList.contains('on'))return;tr.cards=tr.picks.map(x=>({...tr.deck[x]}));tr.how='線上抽牌（密碼學亂數洗牌後，自行點選牌位）';renderTr(true)};
 $('#tr-reshuffle').onclick=()=>{if(!tr.busy)trEnter()};
 
 /* 實體牌手動錄入 */
@@ -10400,8 +10587,10 @@ function renderTr(save){
     if(cross)h+='<dt>橫置牌</dt><dd>這張牌橫壓在第一張上，代表正面迎來的阻力或助力，不分正逆。</dd>';
     else if(c.rev)h+='<dt>逆位是什麼意思</dt><dd>牌上下顛倒。通常表示這張牌的力量受阻、過頭、轉向內在，或還沒發揮出來，不一定是壞事。</dd>';
     sheet(`${c.zh}${cross?'':c.rev?'・逆位':'・正位'}`,h)};
-  const open=k=>{$(`#tr-out .tc[data-k="${k}"]`).classList.add('open');$$(`#tr-out .tname[data-k="${k}"]`).forEach(x=>x.hidden=false);
-    if(!$$('#tr-out .tc:not(.open)').length&&$('#tr-after').hidden){$('#tr-after').hidden=false;$('#tr-sub').textContent='牌已全部翻開。點任何一張牌，看它的含義。'}};
+  const invite=()=>{$$('#tr-out .tc.invite').forEach(x=>x.classList.remove('invite'));const nx=$('#tr-out .tc:not(.open)');if(nx)nx.classList.add('invite')};
+  const open=k=>{const el=$(`#tr-out .tc[data-k="${k}"]`);el.classList.remove('invite');el.classList.add('open');$$(`#tr-out .tname[data-k="${k}"]`).forEach(x=>x.hidden=false);
+    if(!$$('#tr-out .tc:not(.open)').length&&$('#tr-after').hidden){$('#tr-after').hidden=false;$('#tr-sub').textContent='牌已全部翻開。點任何一張牌，看它的含義。'}invite()};
+  setTimeout(()=>{if($('#v-tr-result').classList.contains('on'))invite()},1000);
   $$('#tr-out .tc').forEach(b=>b.onclick=()=>{const k=+b.dataset.k;b.classList.contains('open')?show(k):open(k)});
   $$('#tr-out .trow').forEach(b=>b.onclick=()=>show(+b.dataset.k));
   if($('#tr-openall'))$('#tr-openall').onclick=()=>cs.forEach((_,k)=>open(k));
@@ -10410,7 +10599,7 @@ function renderTr(save){
   bindNotes('tr');go('tr-result');
 }
 
-drawBuild();drawMan();tickNow();drawQmTopics();
+drawBuild();drawMan();tickNow();drawQmTopics();drawLyTopics();
 })();
 </script>
 </body>
