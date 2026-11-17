@@ -64,6 +64,9 @@ details{margin-top:14px}
 details>summary{cursor:pointer;color:var(--mute);font-size:14.5px;list-style:none}
 details>summary::before{content:"＋ "}
 details[open]>summary::before{content:"－ "}
+.choose .cg{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:6px 18px;margin-top:10px;font-size:14.5px;line-height:1.7}
+.choose .cg p{margin:12px 0}
+.choose .cg b{color:var(--accent);font-weight:600}
 label.f{display:block;margin-top:12px}
 label.f>span{display:block;font-size:13.5px;color:var(--mute);margin-bottom:4px}
 .chk{display:flex;align-items:center;gap:8px;font-size:15px;margin-top:10px}
@@ -319,6 +322,15 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
   <button class="pick" data-go="ly-ask"><i>☰</i><b class="serif">六爻</b><span>問一件具體的事：成不成、順不順、對方怎麼想。<br>親手擲三枚銅錢六次，得到一個卦。</span></button>
   <button class="pick" data-go="qm-ask"><i>⊞</i><b class="serif">奇門遁甲</b><span>看此刻的整體局勢：該進還是該守、往哪個方向。<br>用起念的這一刻排出九宮盤。</span></button>
   <button class="pick" data-go="tr-ask"><i>✦</i><b class="serif">塔羅</b><span>看一段關係、一個選擇，或此刻的心境。<br>洗牌後憑直覺抽牌，排成牌陣。</span></button>
+  <details class="choose"><summary>不知道選哪個？</summary>
+    <div class="cg">
+      <p><b>想知道「結果會怎樣、什麼時候」→ 六爻</b><br>一件事、一個對象的成敗與時間。例如：對方會不會回來、這份工作會不會錄取、東西找得回來嗎。應期規則較細，「什麼時候」答得比較具體。</p>
+      <p><b>想知道「局勢如何、我該怎麼做」→ 奇門遁甲</b><br>誰強誰弱、該攻該守、選哪個方向與時機。例如：談判或面試怎麼應對、往哪個方向找、合作中誰占上風、要不要現在行動。</p>
+      <p><b>牽涉三方以上的人 → 奇門遁甲</b><br>一張盤可以同時看你、對方、關係本身、第三者或競爭者。六爻主要看你和一個對象。</p>
+      <p><b>想看心境、關係的樣貌，或在幾個選項間比較 → 塔羅</b><br>重在呈現狀態與提醒，不講應期。</p>
+      <p class="hint">同一件事想再問走向：不必重新起卦或排盤，用結果頁下方的「追問」，沿用同一個卦或同一張盤。傳統上兩者都能問幾乎所有事，以上是各自較擅長之處。</p>
+    </div>
+  </details>
   <p class="hint" style="margin-top:22px">僅供文化探索與自我整理參考，重要決定請回到現實資訊。<br><a href="rules.html" style="color:inherit">排盤規則與標記定義</a></p>
 </section>
 
