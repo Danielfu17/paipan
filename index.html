@@ -9873,6 +9873,10 @@ function lyTiming(r, cal, key, who, YAO, ZCH, ZHE) {
   return [head, `用神取 ${YAO[m.pos - 1]} ${m.qin} ${m.gan}${m.zhi}${m.wx}。其地支 ${z}：值為 ${z}，相沖為 ${ZCH[z]}，相合為 ${ZHE[z]}，墓在 ${mu}。`, ...st.map(x => '・' + x), tail].join('\n');
 }
 
+let _gj=null;const GJ0=()=>_gj;
+const GATE_JX={開門:'大吉',生門:'大吉',休門:'吉',杜門:'中平',景門:'中平',死門:'凶',驚門:'凶',傷門:'凶'};
+const STAR_JX={天心:'吉',天任:'吉',天禽:'吉',天輔:'吉',天沖:'次吉',天蓬:'凶',天芮:'凶',天柱:'凶',天英:'中平'};
+const GOD_JX={值符:'吉',太陰:'吉',六合:'吉',九地:'吉',九天:'吉',白虎:'凶',玄武:'凶',螣蛇:'偏凶'};
 const starState=(sw,mw)=>{const i=WXS.indexOf(sw),j=WXS.indexOf(mw);return (i+1)%5===j?'旺':i===j?'相':(j+1)%5===i?'廢':(i+2)%5===j?'休':'囚'};
 const gateRel=(gw,pw)=>{const i=WXS.indexOf(gw),j=WXS.indexOf(pw);return i===j?'門宮比和':(i+2)%5===j?'門克宮（門迫）':(j+2)%5===i?'宮克門（門制）':(i+1)%5===j?'門生宮（和）':'宮生門（義）'};
 const PALZ={1:'子',8:'丑寅',3:'卯',4:'辰巳',9:'午',2:'未申',7:'酉',6:'戌亥'};
@@ -10248,7 +10252,8 @@ function qmPack(q,cal,r,ts){
   [4,9,2,3,5,7,8,1,6].forEach(p=>{const c=r.cells[p];
     if(p===5){L.push(`${pn(p)}｜地盤干 ${c.di}（寄在坤二宮）｜暗干 ${c.an}｜本宮不排星門神；天禽星此局隨天芮在${pn(qinPal)}`);return}
     const hasQin=c.star.includes('禽'), tian=hasQin&&c.tian.length>1?`${c.tian[0]}（天芮所帶）、${c.tian[1]}（天禽所帶，即中五宮地盤干）`:c.tian.join('、');
-    L.push(`${pn(p)}｜八神 ${c.god}｜九星 ${hasQin?'天芮、天禽（同宮）':c.star}｜八門 ${c.gate}｜天盤干 ${tian}｜地盤干 ${c.di}${p===2?'（本宮）、'+r.cells[5].di+'（中五宮寄來）':''}｜暗干 ${c.an}${c.marks.length?'｜'+c.marks.join('、'):''}`)});
+    const sn=c.star.slice(0,2),stars=hasQin?`天芮（${STAR_JX.天芮}）、天禽（${STAR_JX.天禽}）同宮`:`${sn}（${STAR_JX[sn]}）`;
+    L.push(`${pn(p)}｜八神 ${c.god}（${GOD_JX[c.god]}）｜九星 ${stars}｜八門 ${c.gate}（${GATE_JX[c.gate]}）｜天盤干 ${tian}｜地盤干 ${c.di}${p===2?'（本宮）、'+r.cells[5].di+'（中五宮寄來）':''}｜暗干 ${c.an}${c.marks.length?'｜'+c.marks.join('、'):''}`)});
   L.push('');
   L.push('用神天干落宮：');
   r.gans.forEach(g=>L.push(`${g.label}${g.year?'（'+g.year+' 年生）':''} ${g.gz}${g.dun?'（甲遁於'+g.gan+'，以'+g.gan+'代）':''}：天盤在${pn(g.tian)}，地盤在${pn(g.di)}`));
@@ -10275,7 +10280,8 @@ function qmPack(q,cal,r,ts){
     L.push('感情：天盤乙為女方，天盤庚為男方。求財：生門為利潤，戊為資本，時干為財貨。工作：開門為職位與單位。考試：天輔為考場，丁與景門為文章試卷。疾病：天芮為病，天心與乙為醫藥。出行：景門為道路，傷門為車船，開門為飛機。失物：時干為失物，玄武為取走的人。官司：值符為原告，值符所落之宮的本位星為被告，開門為法官。');
   }
   const byGan={};r.gans.forEach(g=>{const k=g.dun?g.gan:g.gz[0];(byGan[k]=byGan[k]||[]).push(g.label)});
-  Object.entries(byGan).filter(([,v])=>v.length>1).forEach(([k,v])=>L.push(`注意：${v.join('、')}同為「${k}」，天盤與地盤落宮完全相同，無法用天干區分彼此。`));
+  if(TP)TP.sym.forEach(([name,f,role])=>{if(f[0]==='tian')(byGan[f[1]]=byGan[f[1]]||[]).push(`本類用神「${name}」（${role.split('；')[0]}）`)});
+  Object.entries(byGan).filter(([,v])=>v.length>1).forEach(([k,v])=>L.push(`注意：${v.join('、')}同為「${k}」，天盤與地盤落宮完全相同，無法用天干區分彼此。解讀前先說明你讓哪一個代表誰，以及這樣取的理由。`));
   L.push('');
   L.push('五行生克速查（由程式計算）：');
   const mz=P.month[1],mi=WXS.indexOf(zhiWx(mz));
@@ -10295,6 +10301,14 @@ function qmPack(q,cal,r,ts){
   kwLines.forEach(x=>L.push(x));
   L.push('使用方式：以上是該組合的通則，請以此為判斷依據，但必須配合用神、門的吉凶、月令旺衰與空亡入墓等狀態；「看門」「看星」表示吉凶取決於同宮的門或星。只有用神所在的宮與所占之事相關的宮才需要引用。');
   L.push('');
+  _gj=qmGeju(cal,r);
+  const isFu=r.notes.some(n=>n.startsWith('星伏吟'))&&r.notes.some(n=>n.startsWith('門伏吟')),isFan=r.notes.some(n=>n.startsWith('星反吟'))&&r.notes.some(n=>n.startsWith('門反吟'));
+  if(isFu){L.push('全盤伏吟：九星、八門、天盤干全部回到本位（六甲時必然如此）。解讀時要注意：');
+    L.push('　1. 每一宮的十干克應都是「某干加同一干」，這是伏吟造成的必然組合，不是針對這件事的訊號，名稱與要點的分量要打折，不可單憑它下結論；坤二宮另有中五宮寄來之干，也屬結構性的組合。');
+    L.push('　2. 伏吟本身主停滯、維持現狀、宜守不宜動；問「有沒有發生某事」時，比較貼切的讀法是「目前沒有新的變動」。');
+    L.push('　3. 判斷要回到門、星、神的吉凶與旺衰，以及用神之間的生克。'+(GJ0().ji.some(x=>x.startsWith('天顯時格'))?'本局逢天顯時格，伏吟不作凶論。':''));
+    L.push('');}
+  if(isFan){L.push('全盤反吟：九星、八門落在本位的對宮。反吟主快速、反覆、來回變動；吉事易變，凶事易解。判斷時注意事情會來回，不要把單一時點的狀態當成定局。');L.push('');}
   const GJ=qmGeju(cal,r);
   L.push('格局（由程式逐項檢查；成立條件依張志春《神奇之門》的常用吉格、凶格，並逐頁核對原書）：');
   L.push('吉格：'+(GJ.ji.length?'':'無'));GJ.ji.forEach(x=>L.push('　'+x));
