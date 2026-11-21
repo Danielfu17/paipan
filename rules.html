@@ -4,6 +4,7 @@
 <script>/* 只在正式網站統計，本機測試不算 */
 if(location.hostname==='danielfu17.github.io'){window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','G-8S3TZF4FGT');var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=G-8S3TZF4FGT';document.head.appendChild(s)}</script>
 <meta charset="utf-8">
+<link rel="canonical" href="https://danielfu17.github.io/paipan/rules.html">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>問卦・排盤規則與標記定義</title>
 <meta name="description" content="問卦的六爻、奇門遁甲、塔羅資料包所用的排盤規則、標記定義與五行生克對照，供使用者與 AI 解讀時查閱。">
@@ -37,6 +38,7 @@ code{background:#171b31;border-radius:4px;padding:1px 6px}
 <li><b>時區</b>：使用者裝置的當地時間。資料包上的時間都是鐘錶時間，除非另外註明真太陽時。</li>
 <li><b>真太陽時</b>（僅奇門可選）：鐘錶時間加上經度修正（每度 4 分鐘，相對於時區中央經線）再加上均時差。資料包會寫出修正的分鐘數。</li>
 <li><b>資料的範圍</b>：資料包只包含盤面資料與字面上的生克、沖合關係。用神怎麼取、吉凶怎麼斷，由解讀者決定。</li>
+<li><b>問句帶有預設結論</b>：問句含有已下定論的字眼（例如背叛、出軌、騙我、一定、為什麼他…）時，資料包在「所問之事」下方加一行「注意：問句帶有預設結論」。這只是依字面比對，不代表使用者的判斷錯誤；解讀者應先依盤面說明比較支持哪一邊，再回答問句。</li>
 </ul>
 
 <h3>五行生克</h3>
@@ -75,6 +77,7 @@ code{background:#171b31;border-radius:4px;padding:1px 6px}
 <tr><th>回頭生、回頭克</th><td>變爻的五行生、克本爻的五行。</td></tr>
 <tr><th>化進神、化退神</th><td>進神：寅化卯、巳化午、申化酉、亥化子、丑化辰、辰化未、未化戌、戌化丑。退神為以上各組反過來。這八組依《卜筮正宗》；《增刪卜易》只列七組，沒有戌化丑與丑化戌。</td></tr>
 <tr><th>化空、化月破</th><td>變爻的地支落旬空、與月建相沖。</td></tr>
+<tr><th>變爻逢日沖</th><td>變爻的地支與日辰相沖。只標事實，原典沒有對應的專名；沖散與否依變爻旺衰論，資料包不下判斷。</td></tr>
 <tr><th>伏吟</th><td>變爻與本爻地支相同。</td></tr>
 <tr><th>反吟（化沖）</th><td>爻之反吟：變爻與本爻地支相沖。另有卦之反吟：內卦或外卦在乾與巽、坎與離、艮與坤、震與兌之間互變，資料包會標為內卦反吟或外卦反吟。</td></tr>
 <tr><th>長生、帝旺、墓、絕</th><td>金長生在巳、旺在酉、墓在丑、絕在寅；木長生在亥、旺在卯、墓在未、絕在申；水與土長生在申、旺在子、墓在辰、絕在巳；火長生在寅、旺在午、墓在戌、絕在亥。資料包對用神、原神、忌神、仇神標出它們在日辰的狀態，以及動爻化出的狀態。</td></tr>

@@ -4,6 +4,7 @@
 <script>/* 只在正式網站統計，本機測試不算 */
 if(location.hostname==='danielfu17.github.io'){window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','G-8S3TZF4FGT');var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=G-8S3TZF4FGT';document.head.appendChild(s)}</script>
 <meta charset="utf-8">
+<link rel="canonical" href="https://danielfu17.github.io/paipan/">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>問卦・六爻／奇門遁甲／塔羅</title>
 <meta name="description" content="六爻、奇門遁甲、塔羅排盤，複製資料包給 AI 解讀。資料只存在你的裝置。">
@@ -393,6 +394,7 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
   <div class="steps"><span class="on"></span><span></span></div><div class="steplabel">奇門遁甲　第一步・立問與時刻</div>
   <h2 class="serif">此刻，你想看清什麼局勢？</h2>
   <textarea id="qm-q" placeholder="例如：這個合作案現在該推進，還是先觀望？（可留空，只排盤）"></textarea>
+  <div class="qhint" id="qm-qhint" hidden></div>
   <div class="hint" style="margin-top:14px">這件事屬於哪一類？選了之後，資料包會列出這類問題該看的用神（可不選）</div>
   <div class="topics" id="qm-topics"></div>
   <div class="qhint" id="qm-topic-tip" hidden></div>
@@ -9151,6 +9153,7 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
         if (HE[b.zhi] === y.zhi) n.push('化合');
         if (cal.dayKong.includes(b.zhi)) n.push('化空');
         if (chong(b.zhi) === monZhi) n.push('化月破');
+        if (chong(b.zhi) === dayZhi) n.push('變爻逢日沖');
         r.bian.notes = n;
       }
       return r;
@@ -9938,7 +9941,7 @@ const G={
  青龍:'喜慶、順利、正當光明。',朱雀:'口舌、消息、文書往來。',勾陳:'拖延、卡住、與土地房產有關。',螣蛇:'虛驚、糾纏、心神不寧。',白虎:'剛猛、快速，也主傷病與壓力。',玄武:'暗中、隱瞞、私下的事。',
  世:'代表你自己，或你這一方的處境。',應:'代表對方，或你所問的那件事。',動爻:'正在變化的地方，是整卦的關鍵；它會變成右邊的「變爻」。',伏神:'這個角色沒有出現在卦上，藏在這一爻底下，表示它暫時在暗處、還沒浮上檯面。',
  旬空:'暫時落空、力量沒到位，事情還懸著。',月破:'被當月的力量沖破，目前很無力。',日沖:'被今天的力量沖到：安靜的爻會被沖動，動的爻可能被沖散。',臨月建:'正當令，得到當月的力量，很旺。',臨日辰:'得到今天的力量支持，有力。',月合:'和當月相合，被牽住、有情，也算得助。',日合:'和今天相合，被牽住、有情。',
- 回頭克:'變出來的爻反過來克制自己，後勁不利。',回頭生:'變出來的爻反過來生助自己，後勁有利。',化進神:'越變越強，事情往前推進。',化退神:'越變越弱，事情往後退。',化空:'變出來的結果落空，暫時不實。',化月破:'變出來的結果被月令沖破，無力。',伏吟:'變了等於沒變，停滯、反覆、內心煎熬。','反吟（化沖）':'變成相沖的對面，反覆不定。',化合:'變出來與自己相合，被牽住或合成一氣。',
+ 回頭克:'變出來的爻反過來克制自己，後勁不利。',回頭生:'變出來的爻反過來生助自己，後勁有利。',化進神:'越變越強，事情往前推進。',化退神:'越變越弱，事情往後退。',化空:'變出來的結果落空，暫時不實。',化月破:'變出來的結果被月令沖破，無力。',變爻逢日沖:'變出來的那一爻被今天的日辰沖到。沖了之後是散還是不受影響，要看它旺衰，交給解讀判斷。',伏吟:'變了等於沒變，停滯、反覆、內心煎熬。','反吟（化沖）':'變成相沖的對面，反覆不定。',化合:'變出來與自己相合，被牽住或合成一氣。',
  休門:'休息、安穩、貴人相助，屬吉門。',生門:'生機、求財、開展，屬大吉之門。',傷門:'競爭、衝撞、容易受傷，宜主動出擊的事。',杜門:'閉塞、隱藏、不通，宜躲避與技術鑽研。',景門:'文書、名聲、表面風光，虛多實少。',死門:'停滯、結束、固守，不宜開創。',驚門:'驚恐、口舌、官非。',開門:'開創、公開、事業，屬吉門。',
  天蓬:'膽大冒險、有謀略，也主損耗與風險。',天芮:'問題與病灶所在，也主學習。',天沖:'衝勁、快速、行動力。',天輔:'文教、輔助、貴人，屬吉星。',天禽:'中正、穩重、居中調度。',天心:'謀略、領導、醫藥，屬吉星。',天柱:'破壞、口舌、獨來獨往。',天任:'踏實、承擔、穩重，屬吉星。',天英:'光亮、名聲、急躁。',
  值符:'全局最受庇護、最有主導權的位置，像領袖與貴人。',太陰:'暗中相助、私下謀劃。',六合:'合作、中介、婚姻、談成。',九地:'穩固、隱伏，宜守不宜動。',九天:'高遠、張揚，宜主動出擊。',
@@ -10040,6 +10043,13 @@ function drawLyTopics(){
 }
 $('#ly-who').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;ly.who=b.dataset.w;drawLyTopics();lyHint()};
 // 依問題文字提醒使用者把類別和對象選清楚
+/* 問句是否已經帶著結論（例如「她是不是背叛我」）：提醒改問法，並在資料包標註 */
+const LEAD_RE=/背叛|出軌|劈腿|外遇|偷吃|小三|變心|騙我|欺騙|說謊|利用我|針對我|害我|討厭我|不愛我|不要我|甩了我|拋棄|玩弄|算計/;
+function leadQ(q){if(!q)return null;let m=q.match(LEAD_RE);if(m)return m[0];
+  m=q.match(/(一定|肯定|註定|明明|根本|早就)[^，。？?！!]{0,8}/);if(m)return m[0];
+  m=q.match(/為什麼(他|她|對方|老闆|主管|家人)[^，。？?！!]{0,10}/);return m?m[0]:null}
+const LEAD_HINT=w=>`這個問句已經帶著一個答案（「${esc(w)}」）。盤面不會因為問法改變，但問法會把解讀帶往那個方向。可以改成中性的問法，例如「這件事現在是什麼狀況？」「對方的態度怎麼看？」。不改也可以，資料包會提醒 AI 先看盤面比較支持哪一邊。`;
+const leadLine=q=>{const w=leadQ(q);return w?`注意：問句帶有預設結論（「${w}」）。請先依盤面說明比較支持哪一邊，再回答問句；盤面不支持這個預設時直接說不支持，不要順著問句說。`:null};
 const LY_GUESS=[['loveN',/感情|愛情|喜歡|交往|復合|曖昧|前任|男友|女友|男朋友|女朋友|老公|老婆|丈夫|妻子|對象|桃花|結婚|婚姻|分手|我跟他|我和他|我跟她|我和她|我們之間/],
   ['exam',/考試|考上|錄取|面試|應徵|甄試|榜/],['work',/工作|升遷|升職|轉職|換工作|職位|主管|老闆|公司|創業|事業/],
   ['money',/錢|財|投資|股票|收入|薪水|獲利|生意|買賣|賺/],['docs',/合約|簽約|證照|執照|簽證|文件|申請/],['health',/身體|健康|生病|手術|病|痛/],
@@ -10051,10 +10061,12 @@ function lyHint(nudge){
   else if(g&&!ly.topic)h=`這看起來是「${LY_TOPICS[g[0]].n}」的問題。<button type="button" class="link" data-pick="${g[0]}">選這個類別</button>`;
   else if(!ly.topic&&!ly.who&&/他|她|對方|那個人/.test(q))h='問題裡提到另一個人。他是你的誰？請在下面選類別；如果你是替他問，再選「替誰問」。不選的話，代表對方的那一爻只能讓 AI 自己猜。';
   else if(nudge&&!ly.topic&&!ly.who)h='還沒選類別。不選也可以排卦，但用神要由 AI 自己判斷，比較容易取錯。要直接起卦，再按一次按鈕。';
+  {const w=leadQ(q);if(w)h=(h?h+'<br><br>':'')+LEAD_HINT(w)}
   el.innerHTML=h;el.hidden=!h;
 }
 $('#ly-qhint').onclick=e=>{const b=e.target.closest('[data-pick]');if(!b)return;ly.topic=b.dataset.pick;drawLyTopics();lyHint()};
 $('#ly-q').oninput=()=>{lyNudged=false;lyHint()};
+$('#qm-q').oninput=()=>{const w=leadQ($('#qm-q').value.trim()),el=$('#qm-qhint');el.innerHTML=w?LEAD_HINT(w):'';el.hidden=!w};
 let lyNudged=false;
 $('#ly-start').onclick=()=>{if(!ly.topic&&!ly.who&&!lyNudged){lyNudged=true;lyHint(true);$('#ly-qhint').scrollIntoView({block:'center',behavior:'smooth'});return}go('ly-cast')};
 $('#ly-topics').onclick=e=>{const b=e.target.closest('[data-t]');if(!b)return;ly.topic=ly.topic===b.dataset.t?'':b.dataset.t;drawLyTopics();lyHint()};
@@ -10123,6 +10135,7 @@ function lyPack(q,cal,r){
   const P=cal.pillars,b=r.ben,L=[];
   L.push('【六爻排盤資料包】');
   L.push(`所問之事：${q||'（未填）'}`);
+  {const x=leadLine(q);if(x)L.push(x)}
   L.push(`起卦時間：${cal.solar}（農曆 ${cal.lunar}）`);
   L.push(`起卦方式：${ly.how}`);
   L.push(`四柱：${P.year}年 ${P.month}月 ${P.day}日 ${P.hour}時（23:00 換日）`);
@@ -10253,6 +10266,7 @@ function qmPack(q,cal,r,ts){
   const P=cal.pillars,L=[],pn=p=>p?`${r.PAL[p].n}（${r.PAL[p].d}）`:'—';
   L.push('【奇門遁甲排盤資料包】');
   L.push(`所占之事：${q||'（未填）'}`);
+  {const x=leadLine(q);if(x)L.push(x)}
   const TP=QM_TOPICS[qmTopic];
   if(TP)L.push(`所占類別：${TP.n}${qmTopic==='love'&&qmSide?'｜求測者是'+(qmSide==='f'?'女方（以天盤乙代表自己，庚代表對方）':'男方（以天盤庚代表自己，乙代表對方）'):''}`);
   L.push(`起局時刻：${ts?ts.clock+'（鐘錶時間）→ 真太陽時 '+cal.solar+`，經度 ${ts.lng}°，含均時差共修正 ${ts.off>=0?'+':''}${ts.off} 分鐘`:cal.solar+'（鐘錶時間）'}`);
@@ -10413,6 +10427,7 @@ function qHint(){
   if(/還是|或是|或者|二選一/.test(q)&&tr.spread!=='choice')h='這看起來是在兩個選項之間做決定。<button type="button" class="link" id="tr-use-choice">改用「二選一」牌陣</button>';
   else if(/什麼時候|何時|幾月|哪一天|多久/.test(q))h='塔羅不擅長給精確的時間。可以改問「在那之前，我需要準備什麼？」';
   else if(/會不會|是不是|能不能|可不可以|有沒有|該不該|要不要|嗎[？?]?$/.test(q))h='是非題牌比較難回答清楚。試試改成「這件事會怎麼發展？」或「我該怎麼做？」，得到的內容會多很多。';
+  {const w=leadQ(q);if(w)h=(h?h+'<br><br>':'')+LEAD_HINT(w)}
   el.innerHTML=h;el.hidden=!h;
   const u=$('#tr-use-choice');if(u)u.onclick=()=>{tr.userPicked=true;tr.spread='choice';tr.topic='choice';drawSpreads();qHint()};
 }
@@ -10562,6 +10577,7 @@ function trPack(q,time,sp,cs,useRev){
   const L=[],st=trStats(cs);
   L.push('【塔羅抽牌資料包】');
   L.push(`所問之事：${q||'（未填）'}`);
+  {const x=leadLine(q);if(x)L.push(x)}
   L.push(`抽牌時間：${time.replace('T',' ')}`);
   L.push(`牌組：偉特體系 78 張（大阿爾克那 22、小阿爾克那 56）｜正逆位：${useRev?'使用':'不使用（全部以正位記錄）'}`);
   L.push(`抽牌方式：${tr.how}`);
