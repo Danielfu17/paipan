@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8S3TZF4FGT"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-8S3TZF4FGT');</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>問卦・六爻／奇門遁甲／塔羅</title>
@@ -331,7 +333,7 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
       <p class="hint">同一件事想再問走向：不必重新起卦或排盤，用結果頁下方的「追問」，沿用同一個卦或同一張盤。傳統上兩者都能問幾乎所有事，以上是各自較擅長之處。</p>
     </div>
   </details>
-  <p class="hint" style="margin-top:22px">僅供文化探索與自我整理參考，重要決定請回到現實資訊。<br><a href="rules.html" style="color:inherit">排盤規則與標記定義</a></p>
+  <p class="hint" style="margin-top:22px">僅供文化探索與自我整理參考，重要決定請回到現實資訊。<br>本站以 Google Analytics（使用 cookie）統計使用量，只記錄操作種類，不會送出你的問題、盤面或筆記。<br><a href="rules.html" style="color:inherit">排盤規則與標記定義</a></p>
 </section>
 
 <!-- 六爻 1：立問 -->
@@ -9950,7 +9952,9 @@ $('#sheet').onclick=e=>{if(e.target.id==='sheet'||e.target.id==='sheet-close')$(
 
 /* ---------- 導覽 ---------- */
 const qRemind=(id,q)=>{const el=$(id);el.hidden=!q;el.innerHTML=q?'你問的是：<b>'+esc(q)+'</b>':''};
-function go(v){if(v==='ly-cast')qRemind('#ly-qr',$('#ly-q').value.trim());if(v==='tr-draw')qRemind('#tr-qr',$('#tr-q').value.trim());$$('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));window.scrollTo(0,0);
+/* 統計：只送出操作種類，不送問題、盤面或筆記 */
+function track(n,p){try{if(window.gtag)gtag('event',n,p||{})}catch(e){}}
+function go(v){track('step',{step:v});if(v==='ly-cast')qRemind('#ly-qr',$('#ly-q').value.trim());if(v==='tr-draw')qRemind('#tr-qr',$('#tr-q').value.trim());$$('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));window.scrollTo(0,0);
   if(v==='ly-cast'&&ly.lines.length===0)drawBuild(); if(v==='qm-ask')tickNow(); if(v==='hist')renderH(); if(v==='tr-ask')drawSpreads(); if(v==='tr-draw')trEnter();}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b)go(b.dataset.go)});
 $('#home-btn').onclick=()=>go('home'); $('#hist-btn').onclick=()=>go('hist');
@@ -9984,11 +9988,12 @@ const FOLLOW=id=>{const [a,b,c,d]=FW[id];return `【追問要求】
 3. 指出目前最有利與最不利的因素，以及我可以怎麼做來順勢或避開。
 4. ${c}看不出來的部分請直接說明，不要補想像；也不要為了回應我的期待而調整結論。${id==='tr'?'\n5. 牌陣中若已有代表未來或結果的牌位，請以那張牌為主軸展開，並說明它和其他牌的關聯；不要另外想像沒抽到的牌。':''}`};
 function bindCta(id,base,inst,extra){
+  track('result',{method:id});
   inst=inst.replace('【解讀要求】\n','【解讀要求】\n開始之前：如果你可以瀏覽網頁，請先讀過規則頁 '+RULES_URL+'#'+({ly:'liuyao',qm:'qimen',tr:'tarot'}[id])+' ，名詞以該頁的定義為準，並在回答的第一行寫「已查閱規則頁」。如果你無法瀏覽網頁，請在第一行寫「未能查閱規則頁，以下只依資料包」，不要假裝讀過；資料包本身已包含解讀所需的全部盤面資料。\n');
-  $(`#${id}-copy`).onclick=()=>copyText(base+'\n\n'+inst,$(`#${id}-after`));
-  $(`#${id}-copy-raw`).onclick=()=>copyText(base,$(`#${id}-after`));
+  $(`#${id}-copy`).onclick=()=>{track('copy_pack',{method:id,mode:'full'});copyText(base+'\n\n'+inst,$(`#${id}-after`))};
+  $(`#${id}-copy-raw`).onclick=()=>{track('copy_pack',{method:id,mode:'raw'});copyText(base,$(`#${id}-after`))};
   $(`#${id}-pack`).value=base+'\n\n'+inst;
-  $(`#${id}-follow`).onclick=()=>{const fq=$(`#${id}-fq`).value.trim();
+  $(`#${id}-follow`).onclick=()=>{track('copy_pack',{method:id,mode:'follow'});const fq=$(`#${id}-fq`).value.trim();
     copyText(base+(extra?'\n\n'+extra:'')+'\n\n'+FOLLOW(id)+(fq?'\n\n我想追問的重點：'+fq:''),$(`#${id}-fafter`))};
 }
 function pillarsHtml(cal){const P=cal.pillars;return `<div class="pillars serif">${[['年',P.year],['月',P.month],['日',P.day],['時',P.hour]].map(([n,g])=>`<div><small>${n}柱</small>${cGan(g[0])}<br>${cZhi(g[1])}</div>`).join('')}</div>`}
