@@ -6,8 +6,8 @@ if(location.hostname==='danielfu17.github.io'){window.dataLayer=window.dataLayer
 <meta charset="utf-8">
 <link rel="canonical" href="https://danielfu17.github.io/paipan/">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>問卦・六爻／奇門遁甲／塔羅</title>
-<meta name="description" content="六爻、奇門遁甲、塔羅排盤，複製資料包給 AI 解讀。資料只存在你的裝置。">
+<title>問卦・六爻卜卦／奇門遁甲排盤／塔羅占卜｜複製資料包給 AI 解讀</title>
+<meta name="description" content="免費線上六爻卜卦、奇門遁甲排盤、塔羅占卜。排好盤後一鍵複製資料包，貼給 Claude 或 ChatGPT 解讀。不用註冊，資料只存在你的裝置。">
 <meta name="theme-color" content="#0e1122">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -334,7 +334,7 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
       <p class="hint">同一件事想再問走向：不必重新起卦或排盤，用結果頁下方的「追問」，沿用同一個卦或同一張盤。傳統上兩者都能問幾乎所有事，以上是各自較擅長之處。</p>
     </div>
   </details>
-  <p class="hint" style="margin-top:22px">僅供文化探索與自我整理參考，重要決定請回到現實資訊。<br>本站以 Google Analytics（使用 cookie）統計使用量，只記錄操作種類，不會送出你的問題、盤面或筆記。<br><a href="rules.html" style="color:inherit">排盤規則與標記定義</a></p>
+  <p class="hint" style="margin-top:22px">僅供文化探索與自我整理參考，重要決定請回到現實資訊。<br>本站以 Google Analytics（使用 cookie）統計使用量，只記錄操作種類，不會送出你的問題、盤面或筆記。<br><a href="liuyao.html" style="color:inherit">六爻介紹</a>・<a href="qimen.html" style="color:inherit">奇門遁甲介紹</a>・<a href="tarot.html" style="color:inherit">塔羅介紹</a>・<a href="rules.html" style="color:inherit">排盤規則與標記定義</a></p>
 </section>
 
 <!-- 六爻 1：立問 -->
@@ -10647,6 +10647,8 @@ function renderTr(save){
 }
 
 drawBuild();drawMan();tickNow();drawQmTopics();drawLyTopics();
+/* 入口頁的直達連結：./#ly-ask、./#qm-ask、./#tr-ask */
+const goHash=()=>{const h0=location.hash.slice(1);if(/^(ly|qm|tr)-ask$/.test(h0))go(h0)};goHash();window.addEventListener('hashchange',goHash);
 })();
 </script>
 </body>
