@@ -9861,8 +9861,12 @@ function lyYong(r, cal, key, who, YAO, zhiWx, wxRel) {
     todo.push(`${YAO[x.pos - 1]} ${x.qin} ${x.gan}${x.zhi}${x.wx}（${rl}）｜待判定：${ms.join('、')}｜依據：${x.move ? '此爻發動' : '此爻安靜'}；${wxRel(zhiWx(P.month[1]), x.wx, '月建' + P.month[1], '此爻')}；${wxRel(zhiWx(dz), x.wx, '日辰' + dz, '此爻')}；${helpers.length ? '動爻中 ' + helpers.join('、') : '沒有動爻生克此爻'}`);
   });
   if (todo.length) { L.push('待判定的標記（下列事實由程式列出；請在回答中逐項寫出判定與理由）：'); todo.forEach(x => L.push('　' + x)); }
+  if (fuRow) lyFuFacts(r, cal, fuRow, YAO).forEach(x => L.push(x));
+  lyForce(r, cal, role, YAO).forEach(x => L.push(x));
+  const yw = main ? main.wx : fuRow ? fuRow.fu.wx : '';
+  lySanhe(r, role, yw, yq, YAO).forEach(x => L.push(x));
   const timingRow = !fixed && onGua.find(x => x.marks.includes('旬空') || x.marks.includes('月破')) || main;
-  return { lines: L, main: timingRow, fuRow, yq };
+  return { lines: L, main: timingRow, fuRow, yq, role, roleOf };
 }
 function lyTiming(r, cal, key, who, YAO, ZCH, ZHE) {
   const y = lyYong(r, cal, key, who, YAO, () => '', () => ''); if (!y) return '';
@@ -9888,6 +9892,162 @@ function lyTiming(r, cal, key, who, YAO, ZCH, ZHE) {
     st.push(`若用神衰絕 → 遇生遇旺之時（受生或當令的月日）；若用神太旺 → 逢墓逢沖：逢 ${mu} 或 ${ZCH[z]} 的日子`);
   }
   return [head, `用神取 ${YAO[m.pos - 1]} ${m.qin} ${m.gan}${m.zhi}${m.wx}。其地支 ${z}：值為 ${z}，相沖為 ${ZCH[z]}，相合為 ${ZHE[z]}，墓在 ${mu}。`, ...st.map(x => '・' + x), tail].join('\n');
+}
+
+/* ---------- 補充事實：程式只列出符合原文哪幾條，權衡交給解讀者 ----------
+   伏神得出：〔增刪・飛伏神章第二十八〕「伏神有用者有六」「伏神終不得出者有五」
+   原神忌神：〔增刪・元神忌神衰旺章第十〕元神能生五條、不能生六條；忌神有力五條、無力七條
+   三合局：〔增刪・六合章第十九〕成局四種、虛一待用、局中空破待填實、入墓待沖開 */
+const LYZ = '子丑寅卯辰巳午未申酉戌亥', LYZWX = '水土木木土火火土金金土水', LYWX5 = '木火土金水';
+const lzWx = z => LYZWX[LYZ.indexOf(z)];
+const lzChong = z => LYZ[(LYZ.indexOf(z) + 6) % 12];
+const LYZHE = { 子: '丑', 丑: '子', 寅: '亥', 亥: '寅', 卯: '戌', 戌: '卯', 辰: '酉', 酉: '辰', 巳: '申', 申: '巳', 午: '未', 未: '午' };
+const lwSheng = (a, b) => (LYWX5.indexOf(a) + 1) % 5 === LYWX5.indexOf(b);
+const lwKe = (a, b) => (LYWX5.indexOf(a) + 2) % 5 === LYWX5.indexOf(b);
+// 月令旺衰：當令者旺，令生者相，生令者休，克令者囚，令克者死
+const lyWang = (wx, mz) => { const m = lzWx(mz); return wx === m ? '旺' : lwSheng(m, wx) ? '相' : lwSheng(wx, m) ? '休' : lwKe(wx, m) ? '囚' : '死'; };
+const lyStrong = (wx, mz) => '旺相'.includes(lyWang(wx, mz));
+// A（地支 az、五行 aw）對 B 的字面關係，例如「生」「克、沖」「合」「比和」「B生A（泄）」
+function lyRel(az, aw, bz, bw) {
+  const t = [];
+  if (az === bz) t.push('同支');
+  else { if (lzChong(az) === bz) t.push('沖'); if (LYZHE[az] === bz) t.push('合'); }
+  if (aw === bw) t.push('比和'); else if (lwSheng(aw, bw)) t.push('生'); else if (lwKe(aw, bw)) t.push('克');
+  else if (lwSheng(bw, aw)) t.push('被生（泄）'); else t.push('被克');
+  return t;
+}
+const lyRelText = (A, az, aw, B, bz, bw) => `${A}：` + lyRel(az, aw, bz, bw).map(k => ({ 同支: `與${B}同支`, 沖: `沖${B}`, 合: `合${B}`, 比和: `與${B}比和`, 生: `生${B}`, 克: `克${B}`, '被生（泄）': `${B}生${A}（泄）`, 被克: `${B}克${A}` })[k]).join('、');
+const lyMu = wx => LY_SS[wx][2];
+
+function lyFuFacts(r, cal, row, YAO) {
+  const f = row.fu, mz = cal.pillars.month[1], dz = cal.pillars.day[1], w = lyWang(f.wx, mz), weak = !lyStrong(f.wx, mz);
+  const fw = lyWang(row.wx, mz), flyWeak = !lyStrong(row.wx, mz);
+  const movers = r.rows.filter(x => x.move);
+  const L = [], ok = [], no = [];
+  const fuN = `伏神 ${f.zhi}${f.wx}`, flyN = `飛神 ${row.zhi}${row.wx}`;
+  L.push(`伏神能否出現的事實（程式列出；判定交給解讀者，對照〔增刪・飛伏神章第二十八〕）：`);
+  L.push(`　伏神 ${f.qin} ${f.gan}${f.zhi}${f.wx}：月令${w}${f.marks.length ? '；' + f.marks.join('、') : '；不空不破'}${lySS(f.wx, dz) ? '；' + lySS(f.wx, dz) + '於日' : ''}`);
+  L.push(`　月建與日辰：${lyRelText('月建' + mz, mz, lzWx(mz), '伏神', f.zhi, f.wx)}｜${lyRelText('日辰' + dz, dz, lzWx(dz), '伏神', f.zhi, f.wx)}`);
+  L.push(`　${lyRelText(flyN + '（' + YAO[row.pos - 1] + '，' + (row.move ? '動' : '靜') + '，月令' + fw + (row.marks.length ? '，' + row.marks.join('、') : '') + '）', row.zhi, row.wx, '伏神', f.zhi, f.wx)}${lwSheng(row.wx, f.wx) ? '（飛來生伏）' : lwKe(row.wx, f.wx) ? '（飛來克伏）' : lwSheng(f.wx, row.wx) ? '（伏去生飛，泄氣）' : ''}`);
+  const mv = movers.filter(x => x !== row).map(x => `${lyRelText(YAO[x.pos - 1] + x.zhi + x.wx, x.zhi, x.wx, '伏神', f.zhi, f.wx)}；${lyRelText('', x.zhi, x.wx, '飛神', row.zhi, row.wx).slice(1)}`);
+  L.push(`　動爻對伏神與飛神：${mv.length ? mv.join('｜') : '沒有其他動爻'}（變爻只生克本位動爻，不及伏神）`);
+  // 有用六條
+  const sun = [['月建' + mz, mz], ['日辰' + dz, dz]];
+  const g1 = sun.filter(([, z]) => lwSheng(lzWx(z), f.wx)).map(x => x[0]); if (g1.length) ok.push(`①得日月生（${g1.join('、')}生伏神）`);
+  if (!weak) ok.push(`②伏神旺相（月令${w}）`);
+  if (lwSheng(row.wx, f.wx)) ok.push('③得飛神生');
+  const g4 = movers.filter(x => x !== row && lwSheng(x.wx, f.wx)).map(x => YAO[x.pos - 1] + x.zhi); if (g4.length) ok.push(`④得動爻生（${g4.join('、')}）`);
+  const g5 = [...sun.filter(([, z]) => lzChong(z) === row.zhi || lwKe(lzWx(z), row.wx)).map(x => x[0]),
+    ...movers.filter(x => x !== row && (lzChong(x.zhi) === row.zhi || lwKe(x.wx, row.wx))).map(x => YAO[x.pos - 1] + x.zhi + (lzChong(x.zhi) === row.zhi ? '沖' : '克'))];
+  if (g5.length) ok.push(`⑤日月動爻沖克飛神（${g5.join('、')}）`);
+  const g6 = [...row.marks.filter(k => k === '旬空' || k === '月破'), ...(flyWeak ? ['月令' + fw] : []), ...[dz, mz].map(z => lySS(row.wx, z)).filter(s => s === '墓' || s === '絕').map(s => s + '於日月')];
+  if (g6.length) ok.push(`⑥飛神空破休囚墓絕（${g6.join('、')}）`);
+  // 不得出五條
+  if (weak) no.push(`①伏神休囚（月令${w}）`);
+  const b2 = sun.filter(([, z]) => lzChong(z) === f.zhi || lwKe(lzWx(z), f.wx)).map(x => x[0]); if (b2.length) no.push(`②被日月沖克（${b2.join('、')}）`);
+  if (lwKe(row.wx, f.wx) && !flyWeak) no.push(`③被旺相之飛神克（飛神月令${fw}）`);
+  const b4 = [['日', dz], ['月', mz], ['飛神', row.zhi]].filter(([, z]) => ['墓', '絕'].includes(lySS(f.wx, z))).map(([n, z]) => `${lySS(f.wx, z)}於${n}${z}`);
+  if (b4.length) no.push(`④墓絕於日月飛爻（${b4.join('、')}）`);
+  if (weak && (f.marks.includes('旬空') || f.marks.includes('月破'))) no.push(`⑤休囚又值空破（${f.marks.filter(k => k === '旬空' || k === '月破').join('、')}）`);
+  L.push(`　符合「伏神有用」：${ok.length ? ok.join('、') : '無'}`);
+  L.push(`　符合「伏神終不得出」：${no.length ? no.join('、') : '無'}`);
+  return L;
+}
+
+function lyForce(r, cal, role, YAO) {
+  const mz = cal.pillars.month[1], dz = cal.pillars.day[1], movers = r.rows.filter(x => x.move), L = [];
+  const isRole = k => x => x.qin === role[k];
+  const anyMove = k => movers.some(isRole(k));
+  r.rows.filter(x => x.qin === role.原神 || x.qin === role.忌神).forEach(x => {
+    const k = x.qin === role.原神 ? '原神' : '忌神', w = lyWang(x.wx, mz), weak = !lyStrong(x.wx, mz), n = x.move ? x.bian.notes : [];
+    const others = movers.filter(m => m !== x);
+    const lin = [mz, dz].includes(x.zhi), sunHelp = [mz, dz].some(z => lzWx(z) === x.wx || lwSheng(lzWx(z), x.wx)), mvHelp = others.some(m => m.wx === x.wx || lwSheng(m.wx, x.wx));
+    const hurt = [['月建', mz], ['日辰', dz]].filter(([, z]) => lwKe(lzWx(z), x.wx)).map(([a, z]) => a + z).concat(others.filter(m => lwKe(m.wx, x.wx)).map(m => YAO[m.pos - 1] + m.zhi));
+    const kong = x.marks.includes('旬空'), po = x.marks.includes('月破'), dss = lySS(x.wx, dz), mu = lyMu(x.wx);
+    const tomb = [dz === mu ? '入日墓' : '', others.some(m => m.zhi === mu) ? '入動墓' : '', x.move && x.bian.zhi === mu ? '入化墓' : ''].filter(Boolean);
+    const jue = dss === '絕', hua = x.move ? [lySS(x.wx, x.bian.zhi) === '絕' ? '化絕' : '', n.includes('回頭克') ? '化克' : '', n.includes('化月破') ? '化破' : ''].filter(Boolean) : [];
+    const good = [], bad = [];
+    if (k === '原神') {
+      if (!weak || lin || sunHelp || mvHelp) good.push('①旺相或臨日月或得日月動爻生扶');
+      if (n.includes('回頭生') || n.includes('化進神')) good.push('②動化回頭生或化進神');
+      if (dss === '長生' || dss === '帝旺') good.push(`③${dss}於日辰`);
+      if (x.move && anyMove('忌神')) good.push('④與忌神同動');
+      if (!weak && x.move && (kong || n.includes('化空'))) good.push('⑤旺動臨空化空');
+      if (weak && (!x.move || hurt.length)) bad.push(`①休囚${x.move ? '動而被傷克（' + hurt.join('、') + '）' : '不動'}`);
+      if (weak && (kong || po)) bad.push(`②休囚又逢${[kong ? '旬空' : '', po ? '月破' : ''].filter(Boolean).join('、')}`);
+      if (weak && n.includes('化退神')) bad.push('③休囚動化退神');
+      if (weak && jue) bad.push('④衰而又絕（絕於日）');
+      if (tomb.length) bad.push(`⑤入三墓（${tomb.join('、')}）`);
+      if (weak && hua.length) bad.push(`⑥休囚動而${hua.join('、')}`);
+    } else {
+      if (!weak || lin || sunHelp || mvHelp) good.push('①旺相或遇日月動爻生扶或臨日月');
+      if (n.includes('回頭生') || n.includes('化合')) good.push('②動化回頭生扶');
+      if (!weak && x.move && (kong || n.includes('化空'))) good.push('③旺動臨空化空');
+      if (dss === '長生' || dss === '帝旺') good.push(`④${dss}於日辰`);
+      if (x.move && anyMove('仇神')) good.push('⑤與仇神同動');
+      if (weak && (!x.move || hurt.length)) bad.push(`①休囚${x.move ? '動而被日月動爻克（' + hurt.join('、') + '）' : '不動'}`);
+      if (!x.move && (kong || po)) bad.push(`②靜臨${[kong ? '旬空' : '', po ? '月破' : ''].filter(Boolean).join('、')}`);
+      if (tomb.length) bad.push(`③入三墓（${tomb.join('、')}）`);
+      if (weak && n.includes('化退神')) bad.push('④衰動化退神');
+      if (weak && jue) bad.push('⑤衰而又絕（絕於日）');
+      if (x.move && hua.length) bad.push(`⑥動${hua.join('、')}`);
+      if (x.move && anyMove('原神')) bad.push('⑦與元神同動');
+    }
+    const [gn, bn] = k === '原神' ? ['能生用神', '不能生用神'] : ['有力克用神', '無力'];
+    L.push(`　${YAO[x.pos - 1]} ${x.qin} ${x.zhi}${x.wx}（${k}，${x.move ? '動' : '靜'}，月令${w}）｜符合「${gn}」：${good.length ? good.join('、') : '無'}｜符合「${bn}」：${bad.length ? bad.join('、') : '無'}`);
+  });
+  if (!L.length) return [];
+  return ['原神、忌神的有力與無力（程式列出符合〔增刪・元神忌神衰旺章第十〕的條目；兩邊都有時由解讀者權衡。原文另說：用神本身無氣時，原神有力也難生，忌神無力也不足喜。化散工具不判斷）：', ...L];
+}
+
+const LY_JU = { 水: '申子辰', 金: '巳酉丑', 火: '寅午戌', 木: '亥卯未' };
+function lySanhe(r, role, yongWx, yq, YAO) {
+  const L = [], shi = r.rows.find(x => x.shi);
+  const roleName = q => q === yq ? '用神' : Object.keys(role).find(k => role[k] === q) || '';
+  for (const [wx, zs] of Object.entries(LY_JU)) {
+    const at = z => r.rows.filter(x => x.zhi === z), bianAt = z => r.rows.filter(x => x.move && x.bian.zhi === z);
+    const pick = [...zs].map(z => at(z).sort((a, b) => b.move - a.move)[0] || null);
+    const nMove = pick.filter(x => x && x.move).length, have = pick.filter(Boolean).length;
+    let kind = '', parts = [], miss = '';
+    if (have === 3 && nMove >= 1) { kind = nMove === 3 ? '三爻皆動' : nMove === 2 ? '兩爻動一爻靜' : '一爻動兩爻靜'; parts = pick.map(x => `${YAO[x.pos - 1]}${x.zhi}（${x.move ? '動' : '靜'}${x.shi ? '・世' : x.ying ? '・應' : ''}${x.marks.length ? '・' + x.marks.join('・') : ''}）`); }
+    else if (have === 2) {
+      const mi = pick.findIndex(x => !x), z = zs[mi], pres = pick.filter(Boolean), ps = pres.map(x => x.pos).sort().join(''), sameTri = pres.every(x => x.move) && (ps === '13' || ps === '46');
+      const bz = sameTri ? bianAt(z).find(b => (b.pos <= 3) === (pres[0].pos <= 3)) : null;
+      if (bz) { kind = (pres[0].pos <= 3 ? '內卦初三爻' : '外卦四六爻') + '發動與變爻成局'; parts = [...pres.map(x => `${YAO[x.pos - 1]}${x.zhi}（動${x.marks.length ? '・' + x.marks.join('・') : ''}）`), `${YAO[bz.pos - 1]}變爻${z}`]; }
+      else if (pres.every(x => x.move)) { kind = '虛一待用'; miss = z; parts = pres.map(x => `${YAO[x.pos - 1]}${x.zhi}（動）`); }
+    }
+    if (!kind) continue;
+    const q = LY_QIN.find(qq => { const i = LYWX5.indexOf(r.ben.palaceWx), j = LYWX5.indexOf(wx); return qq === (i === j ? '兄弟' : (i + 1) % 5 === j ? '子孫' : (j + 1) % 5 === i ? '父母' : (i + 2) % 5 === j ? '妻財' : '官鬼'); });
+    const inShi = pick.some(x => x && x.shi), rn = roleName(q);
+    const toShi = inShi ? '世爻在局內' : shi ? `局${lwSheng(wx, shi.wx) ? '生' : lwKe(wx, shi.wx) ? '克' : wx === shi.wx ? '與世爻比和' : lwSheng(shi.wx, wx) ? '受世爻生' : '受世爻克'}世爻` : '';
+    const toYong = yongWx ? `；局（${wx}）對用神（${yongWx}）：${wx === yongWx ? '比和' : lwSheng(wx, yongWx) ? '生' : lwKe(wx, yongWx) ? '克' : lwSheng(yongWx, wx) ? '用神生局（泄）' : '用神克局'}` : '';
+    L.push(`　${zs}合${wx}局（${q}局${rn ? '，' + rn + '局' : ''}）｜${kind}｜${parts.join('、')}${miss ? `｜缺 ${miss}，待逢 ${miss} 的日月補足` : ''}｜${toShi}${toYong}`);
+  }
+  if (!L.length) return [];
+  return ['三合局（程式依〔增刪・六合章第十九〕的成局條件列出；局中有旬空、月破者待填實之日成局，有入墓者待沖開之日，動爻逢日沖是否算破局由解讀者判斷）：', ...L];
+}
+
+// 逐日：每一天的日辰對用神的關係，以及值、沖了哪一爻
+function lyDays(r, cal, key, who, YAO, days) {
+  const y = lyYong(r, cal, key, who, YAO, () => '', () => ''); if (!y) return '';
+  const t = y.main ? { zhi: y.main.zhi, wx: y.main.wx, n: `${YAO[y.main.pos - 1]} ${y.main.qin} ${y.main.zhi}${y.main.wx}` } : y.fuRow ? { zhi: y.fuRow.fu.zhi, wx: y.fuRow.fu.wx, n: `伏神 ${y.fuRow.fu.qin} ${y.fuRow.fu.zhi}${y.fuRow.fu.wx}` } : null;
+  if (!t) return '';
+  const lab = x => { const rl = y.roleOf(x); return [rl, x.shi ? '世' : x.ying ? '應' : '', x.fu && y.fuRow === x ? '飛神' : '', x.move ? '動' : ''].filter(Boolean).join('・'); };
+  const out = days.map(([d, gz]) => {
+    const z = gz[1], zw = lzWx(z), a = [];
+    const rel = lyRel(z, zw, t.zhi, t.wx), ss = lySS(t.wx, z);
+    a.push(`用神：${rel.includes('同支') ? '值日' : ''}${rel.filter(k => k !== '同支').map(k => k === '被生（泄）' ? '用神生日（泄）' : k === '被克' ? '用神克日' : k === '比和' ? '比和（扶）' : k).join('、')}${ss ? '、用神' + ss + '於此日' : ''}`);
+    r.rows.forEach(x => {
+      const l = lab(x), p = YAO[x.pos - 1];
+      if (x.zhi === z) a.push(`值${p}${x.zhi}${l ? '（' + l + '）' : ''}${x.marks.includes('旬空') ? '・填實' : ''}${x.marks.includes('月破') ? '・實破' : ''}`);
+      else if (lzChong(x.zhi) === z) a.push(`沖${p}${x.zhi}${l ? '（' + l + '）' : ''}${x.marks.includes('旬空') ? '・沖空' : ''}${x.marks.some(k => k === '月合' || k === '日合') || (x.move && x.bian.notes.includes('化合')) ? '・沖開合' : ''}`);
+      if (x.move && x.bian.zhi === z && x.bian.zhi !== x.zhi) a.push(`值${p}變爻${x.bian.zhi}`);
+      else if (x.move && lzChong(x.bian.zhi) === z) a.push(`沖${p}變爻${x.bian.zhi}`);
+    });
+    return `${d} ${gz}｜${a.join('；')}`;
+  });
+  return ['【逐日關係表】（由程式列出每天的日辰對用神的生克，以及值、沖了哪一爻；只是地支字面關係，吉凶請結合全卦判斷。同一天正反力量都有時，兩面都要寫）',
+    `用神取 ${t.n}。`, ...out].join('\n');
 }
 
 let _gj=null;const GJ0=()=>_gj;
@@ -9924,9 +10084,13 @@ function qmTiming(cal,r){
   L.push('6. 每個應期都要寫出：用了哪一條、根據哪個盤面資料、得到哪個地支、時間單位，以及查表換成的日期。');
   return L.join('\n');
 }
+function dayList(cal,n){
+  const t=cal.t,b=new Date(t.y,t.m-1,t.d+(t.h>=23?1:0)),out=[];
+  for(let i=0;i<(n||30);i++){const d=new Date(b.getFullYear(),b.getMonth(),b.getDate()+i),c=E.calendar({y:d.getFullYear(),m:d.getMonth()+1,d:d.getDate(),h:12,mi:0});out.push([`${d.getMonth()+1}/${d.getDate()}`,c.pillars.day])}
+  return out;
+}
 function dayTable(cal,n){
-  n=n||30;const t=cal.t,b=new Date(t.y,t.m-1,t.d+(t.h>=23?1:0)),out=[];
-  for(let i=0;i<n;i++){const d=new Date(b.getFullYear(),b.getMonth(),b.getDate()+i),c=E.calendar({y:d.getFullYear(),m:d.getMonth()+1,d:d.getDate(),h:12,mi:0});out.push(`${d.getMonth()+1}/${d.getDate()} ${c.pillars.day}`)}
+  n=n||30;const t=cal.t,b=new Date(t.y,t.m-1,t.d+(t.h>=23?1:0)),out=dayList(cal,n).map(x=>x.join(' '));
   const hrs=[0,1,3,5,7,9,11,13,15,17,19,21].map(h=>{const c=E.calendar({y:b.getFullYear(),m:b.getMonth()+1,d:b.getDate(),h,mi:0});return c.pillars.hour+(h===0?'（前一晚 23 點至 1 點）':`（${h}–${h+2} 點）`)});
   return ['【應期換算表】（由程式計算，請直接查表，不要自行推算干支）',
     '日柱以 23:00 換日：下列每個日期的日柱，自前一晚 23:00 起算。',
@@ -9989,7 +10153,7 @@ const FOLLOW=id=>{const [a,b,c,d]=FW[id];return `【追問要求】
 1. 依時間先後，說明這件事接下來可能經過的階段與轉折點，每一階段標明${c}依據。
 2. 推斷可能的時間點（大約何時有變化或結果），並說明是依哪個${d}推得；推不出來就直接說。${id==='tr'?'':'換算成日期時請查上面的【應期換算表】，不要自行推算干支。'}
 3. 指出目前最有利與最不利的因素，以及我可以怎麼做來順勢或避開。
-4. ${c}看不出來的部分請直接說明，不要補想像；也不要為了回應我的期待而調整結論。${id==='tr'?'\n5. 牌陣中若已有代表未來或結果的牌位，請以那張牌為主軸展開，並說明它和其他牌的關聯；不要另外想像沒抽到的牌。':''}`};
+4. ${c}看不出來的部分請直接說明，不要補想像；也不要為了回應我的期待而調整結論。${id==='tr'?'\n5. 牌陣中若已有代表未來或結果的牌位，請以那張牌為主軸展開，並說明它和其他牌的關聯；不要另外想像沒抽到的牌。':''}${id==='ly'?'\n5. 點名任何一天時，先查【逐日關係表】寫出那天日辰對用神的生克，再寫它沖動或填實了什麼；同一天正反力量都有時寫成「變化集中」，不要只寫一面。\n6. 資料包列出的伏神能否出現、原神忌神有力無力、三合局，符合有利與不利兩邊條目時兩邊都要寫。結論的依據要互相獨立：同一件事換個名目不能算兩條，已判定無力的忌神不能當主要依據；「盤面明確支持」至少要兩條獨立依據。':''}`};
 function bindCta(id,base,inst,extra){
   track('result',{method:id});
   inst=inst.replace('【解讀要求】\n','【解讀要求】\n開始之前：如果你可以瀏覽網頁，請先讀過規則頁 '+RULES_URL+'#'+({ly:'liuyao',qm:'qimen',tr:'tarot'}[id])+' ，名詞以該頁的定義為準，並在回答的第一行寫「已查閱規則頁」。如果你無法瀏覽網頁，請在第一行寫「未能查閱規則頁，以下只依資料包」，不要假裝讀過；資料包本身已包含解讀所需的全部盤面資料。\n');
@@ -10128,9 +10292,11 @@ const LY_INST=`【解讀要求】
    - 月合、日合：靜爻逢合為合起，動爻逢合為合絆，要待沖開。
    - 化空、化月破不作無用論，應在沖空、實空、實破之時。
    - 變爻只能生克本位的動爻，不能生克其他爻；六神只作輔助，不單憑六神定吉凶。
-6. 只使用資料包中的盤面資料，不要自行改卦、重排納甲或補算未列的伏神與神煞；資訊不足之處請直接說明無法據此判斷。
-7. 我的問題若夾帶期待或預設結論，不要順著說；先看盤面支持哪一邊，再寫反證。
-8. 先用一兩句白話講整體態勢，再分點列關鍵依據；術語第一次出現時用一句話解釋。`;
+6. 只使用資料包中的盤面資料，不要自行改卦、重排納甲或補算未列的伏神與神煞；資訊不足之處請直接說明無法據此判斷。資料包已列出的「伏神能否出現」「原神、忌神的有力與無力」「三合局」「逐日關係表」是程式依原文條目比對的事實，請逐項採用；符合有利與不利兩邊條目時，兩邊都要寫出再權衡。
+7. 結論的依據要互相獨立：同一件事換個名目不能算兩條（例如兄爻發動與兄弟局）；已判定無力的忌神、不作真空以外的旬空等，不能再當成主要依據。「盤面明確支持」至少要兩條獨立依據，否則降為「有一定傾向」。
+8. 點名某一天為應期或轉折時，先寫出逐日關係表中那天的日辰對用神是生、扶、克、沖或值，再寫它沖動或填實了什麼；同一天正反力量都有時，寫成「變化集中」，不要只寫一面。
+9. 我的問題若夾帶期待或預設結論，不要順著說；先看盤面支持哪一邊，再寫反證。
+10. 先用一兩句白話講整體態勢，再分點列關鍵依據；術語第一次出現時用一句話解釋。`;
 function lyPack(q,cal,r){
   const P=cal.pillars,b=r.ben,L=[];
   L.push('【六爻排盤資料包】');
@@ -10210,7 +10376,7 @@ function renderLy(save){
   </div>
   ${notesCard('ly')}
   <div class="row" style="margin-top:18px"><button class="btn ghost grow" id="ly-again">再問另一件事</button></div>`;
-  const lt=lyTiming(r,cal,ly.topic,ly.who,YAO,ZCH,ZHE);bindCta('ly',pack+'\n\n'+(lt?lt+'\n\n':'')+dayTable(cal),LY_INST);
+  const lt=lyTiming(r,cal,ly.topic,ly.who,YAO,ZCH,ZHE);const ld=lyDays(r,cal,ly.topic,ly.who,YAO,dayList(cal));bindCta('ly',pack+'\n\n'+(lt?lt+'\n\n':'')+(ld?ld+'\n\n':'')+dayTable(cal),LY_INST);
   $$('#ly-out tr.tap').forEach(tr=>tr.onclick=()=>{const x=r.rows[+tr.dataset.pos-1];
     let h=`<dt>${x.qin} ${x.gan}${x.zhi}（${x.wx}）</dt><dd>${G[x.qin]}</dd>`+gl(x.shen,'六神：'+x.shen);
     if(x.shi)h+=gl('世','世爻');if(x.ying)h+=gl('應','應爻');
