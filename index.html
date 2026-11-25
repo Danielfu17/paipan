@@ -9809,8 +9809,11 @@ function lyGuaNotes(r) {
   const L = [], b = r.ben, v = r.bian; if (!v) return L;
   const k = x => x.liuChong ? '六沖' : x.liuHe ? '六合' : '';
   if (k(b) && k(v)) L.push(`卦的變化：${k(b)}變${k(v)}。${k(b) === '六沖' && k(v) === '六合' ? '先散後聚' : k(b) === '六合' && k(v) === '六沖' ? '先聚後散' : '前後同性質'}。`);
-  if (LY_FANYIN[b.lower] === v.lower) L.push(`內卦反吟：內卦由${b.lower}變${v.lower}。主反覆不定。`);
-  if (LY_FANYIN[b.upper] === v.upper) L.push(`外卦反吟：外卦由${b.upper}變${v.upper}。主反覆不定。`);
+  const TW = { 乾: '金', 兌: '金', 離: '火', 震: '木', 巽: '木', 坎: '水', 艮: '土', 坤: '土' };
+  [['內卦', b.lower, v.lower], ['外卦', b.upper, v.upper]].forEach(([n, f, t]) => {
+    if (LY_FANYIN[f] === t) L.push(`${n}反吟：${n}由${f}變${t}。主反覆不定；輕重看用神：用神不化沖克者，雖反覆亦主事就，用神化沖克者大凶（〔正宗・十八問答第五問〕）。`);
+    if (f !== t && lwKe(TW[t], TW[f])) L.push(`${n}化回頭克（卦之回頭克）：${n}由${f}（${TW[f]}）變${t}（${TW[t]}）。兩書說法不同：增刪〈卦變生克墓絕章〉說凡卦化克者不論用神衰旺皆以凶推，但書中例子都是整個卦變；正宗十八問答第二問說原神、用神遇之則凶，忌神、仇神遇之反吉。是否採用由解讀者判斷，並寫出兩說。`);
+  });
   return L;
 }
 function lyYong(r, cal, key, who, YAO, zhiWx, wxRel) {
@@ -9865,6 +9868,8 @@ function lyYong(r, cal, key, who, YAO, zhiWx, wxRel) {
   lyForce(r, cal, role, YAO).forEach(x => L.push(x));
   const yw = main ? main.wx : fuRow ? fuRow.fu.wx : '';
   lySanhe(r, role, yw, yq, YAO).forEach(x => L.push(x));
+  if (main) lyMuJue(r, cal, main, YAO).forEach(x => L.push(x));
+  lyMovers(r, roleOf, YAO).forEach(x => L.push(x));
   const timingRow = !fixed && onGua.find(x => x.marks.includes('旬空') || x.marks.includes('月破')) || main;
   return { lines: L, main: timingRow, fuRow, yq, role, roleOf };
 }
@@ -10000,6 +10005,60 @@ function lyForce(r, cal, role, YAO) {
   return ['原神、忌神的有力與無力（程式列出符合〔增刪・元神忌神衰旺章第十〕的條目；兩邊都有時由解讀者權衡。原文另說：用神本身無氣時，原神有力也難生，忌神無力也不足喜。化散工具不判斷）：', ...L];
 }
 
+/* ---------- 墓、絕的原文條件，以及動爻對各爻的關係 ----------
+   真墓：〔增刪・隨鬼入墓章第三十〕「旺相者非眞…惟世爻休囚被克﹐而又入墓者﹐是也。墓神破﹐日月動爻沖破﹐亦非眞也。」
+   土爻逢巳：〔增刪・生旺墓絕章〕「土爻𨿽絕於巳，必須休囚無气…若土爻旺相，或得日月動爻生扶，再遇巳爻，巳火反能生土，論生不論絕也。」
+   爻與爻：〔增刪・六沖章第二十〕「爻遇爻沖謂之相殺也」；〔增刪・動變生克沖合章第十五〕變爻只生克沖合本位動爻 */
+// 此爻在起卦時是否得生扶：旺相、日月同類或生之、其他動爻同類或生之、化回頭生或化合
+function lyHelped(r, cal, x) {
+  const mz = cal.pillars.month[1], dz = cal.pillars.day[1], a = [];
+  if (lyStrong(x.wx, mz)) a.push('月令' + lyWang(x.wx, mz));
+  [['月建', mz], ['日辰', dz]].forEach(([n, z]) => { if (lzWx(z) === x.wx) a.push(n + z + '扶'); else if (lwSheng(lzWx(z), x.wx)) a.push(n + z + '生'); });
+  r.rows.filter(m => m.move && m !== x).forEach(m => { if (m.wx === x.wx) a.push(m.zhi + '動爻扶'); else if (lwSheng(m.wx, x.wx)) a.push(m.zhi + '動爻生'); });
+  if (x.move && x.bian.notes.includes('回頭生')) a.push('化回頭生');
+  return a;
+}
+function lyMuJue(r, cal, main, YAO) {
+  const mz = cal.pillars.month[1], dz = cal.pillars.day[1], shi = r.rows.find(x => x.shi), L = [];
+  const tgt = [[main, '用神'], [shi, '世爻']].filter(([x], i, A) => x && !(i === 1 && A[0][0] === x));
+  tgt.forEach(([x, nm]) => {
+    const head = `${nm} ${YAO[x.pos - 1]} ${x.qin} ${x.zhi}${x.wx}${nm === '用神' && x.shi ? '（持世）' : ''}`;
+    const mu = lyMu(x.wx), others = r.rows.filter(m => m.move && m !== x), w = lyWang(x.wx, mz), strong = lyStrong(x.wx, mz);
+    const tomb = [];
+    if (dz === mu) tomb.push(['入日墓（日辰' + dz + '）', '日辰本身不受沖破']);
+    others.filter(m => m.zhi === mu).forEach(m => { const br = [m.marks.includes('月破') ? '月破' : '', m.marks.includes('日沖') ? '逢日沖' : '', m.marks.includes('旬空') ? '旬空' : ''].filter(Boolean); tomb.push([`入動墓（${YAO[m.pos - 1]}${m.zhi}）`, br.length ? '墓爻' + br.join('、') : '墓爻不空不破、未逢日沖']); });
+    if (x.move && x.bian.zhi === mu) { const br = [lzChong(mz) === mu ? '化月破' : '', lzChong(dz) === mu ? '逢日沖' : ''].filter(Boolean); tomb.push(['動而化墓（' + mu + '）', br.length ? '墓爻' + br.join('、') : '墓爻未被日月沖破']); }
+    if (tomb.length) {
+      const hurt = [['月建', mz], ['日辰', dz]].filter(([, z]) => lwKe(lzWx(z), x.wx)).map(([n, z]) => n + z)
+        .concat(others.filter(m => lwKe(m.wx, x.wx)).map(m => `${YAO[m.pos - 1]}${m.zhi}動${m.marks.length ? '（' + m.marks.join('、') + '）' : ''}`))
+        .concat(x.move && x.bian.notes.includes('回頭克') ? ['化回頭克'] : []);
+      const fit = strong ? '旺相，原文說旺相者非真墓' : hurt.length ? '休囚又被克，符合真墓的條件（克者若旬空、入墓，是否算被克由解讀者判斷）' : '休囚但沒有被日月動爻克，不符合「休囚被克」的真墓條件';
+      L.push(`　${head}｜${tomb.map(t => t[0]).join('、')}｜月令${w}｜被克：${hurt.length ? hurt.join('、') : '無'}｜墓神沖破：${tomb.map(t => t[1]).join('；')}｜對照真墓條件：${fit}`);
+    }
+    if (lySS(x.wx, dz) === '絕') {
+      const help = lyHelped(r, cal, x);
+      L.push(`　${head}｜絕於日（日辰${dz}）｜月令${w}｜生扶：${help.length ? help.join('、') : '無'}${x.wx === '土' ? `｜對照土爻逢巳的條件：${help.length ? '有生扶，原文「論生不論絕」' : '休囚無氣，論絕'}` : ''}`);
+    }
+  });
+  if (!L.length) return [];
+  return ['用神、世爻的墓與絕（程式列出；對照〔增刪・隨鬼入墓章第三十〕真墓條件「旺相者非眞，惟休囚被克而又入墓者是也；墓神被日月動爻沖破亦非眞」，以及〔增刪・生旺墓絕章〕土爻逢巳「得日月動爻生扶者論生不論絕」）：', ...L];
+}
+function lyMovers(r, roleOf, YAO) {
+  const movers = r.rows.filter(x => x.move); if (!movers.length) return [];
+  const tag = x => [roleOf(x), x.shi ? '世' : x.ying ? '應' : '', x.move ? '動' : '靜', ...x.marks.filter(k => ['旬空', '月破', '臨月建', '臨日辰'].includes(k))].filter(Boolean).join('・');
+  const L = [], warn = [];
+  movers.forEach(m => {
+    const a = r.rows.filter(x => x !== m).map(x => {
+      const rel = lyRel(m.zhi, m.wx, x.zhi, x.wx).filter(k => ['沖', '合', '生', '克'].includes(k));
+      if (!rel.length) return '';
+      if ((x.shi || x.ying) && rel.some(k => k === '沖' || k === '克')) warn.push(`${YAO[m.pos - 1]}${m.zhi}（${tag(m)}）${rel.filter(k => k === '沖' || k === '克').join('、')}${x.shi ? '世爻' : '應爻'}${x.zhi}`);
+      return `${rel.join('、')}${YAO[x.pos - 1]}${x.zhi}（${tag(x)}）`;
+    }).filter(Boolean);
+    L.push(`　${YAO[m.pos - 1]} ${m.qin} ${m.zhi}${m.wx}（${tag(m)}）：${a.length ? a.join('；') : '對其他爻沒有生克沖合'}`);
+  });
+  return ['動爻對各爻的生克沖合（程式列出地支、五行的字面關係；變爻只生克本位動爻，不在此列。〔增刪・六沖章第二十〕「爻遇爻沖謂之相殺也」。受生克的爻有沒有力，由解讀者依旺衰判斷）：', ...L, ...(warn.length ? ['　注意：' + warn.join('；') + '。動爻沖克世爻、應爻，解讀時要寫出來。'] : [])];
+}
+
 const LY_JU = { 水: '申子辰', 金: '巳酉丑', 火: '寅午戌', 木: '亥卯未' };
 function lySanhe(r, role, yongWx, yq, YAO) {
   const L = [], shi = r.rows.find(x => x.shi);
@@ -10033,10 +10092,11 @@ function lyDays(r, cal, key, who, YAO, days) {
   const t = y.main ? { zhi: y.main.zhi, wx: y.main.wx, n: `${YAO[y.main.pos - 1]} ${y.main.qin} ${y.main.zhi}${y.main.wx}` } : y.fuRow ? { zhi: y.fuRow.fu.zhi, wx: y.fuRow.fu.wx, n: `伏神 ${y.fuRow.fu.qin} ${y.fuRow.fu.zhi}${y.fuRow.fu.wx}` } : null;
   if (!t) return '';
   const lab = x => { const rl = y.roleOf(x); return [rl, x.shi ? '世' : x.ying ? '應' : '', x.fu && y.fuRow === x ? '飛神' : '', x.move ? '動' : ''].filter(Boolean).join('・'); };
+  const help = y.main ? lyHelped(r, cal, y.main) : [];
   const out = days.map(([d, gz]) => {
     const z = gz[1], zw = lzWx(z), a = [];
     const rel = lyRel(z, zw, t.zhi, t.wx), ss = lySS(t.wx, z);
-    a.push(`用神：${rel.includes('同支') ? '值日' : ''}${rel.filter(k => k !== '同支').map(k => k === '被生（泄）' ? '用神生日（泄）' : k === '被克' ? '用神克日' : k === '比和' ? '比和（扶）' : k).join('、')}${ss ? '、用神' + ss + '於此日' : ''}`);
+    a.push(`用神：${rel.includes('同支') ? '值日' : ''}${rel.filter(k => k !== '同支').map(k => k === '被生（泄）' ? '用神生日（泄）' : k === '被克' ? '用神克日' : k === '比和' ? '比和（扶）' : k).join('、')}${ss ? '、用神' + ss + '於此日' + (ss === '絕' && t.wx === '土' && help.length ? '（起卦時用神有生扶，依〈生旺墓絕章〉土爻逢巳論生不論絕）' : '') : ''}`);
     r.rows.forEach(x => {
       const l = lab(x), p = YAO[x.pos - 1];
       if (x.zhi === z) a.push(`值${p}${x.zhi}${l ? '（' + l + '）' : ''}${x.marks.includes('旬空') ? '・填實' : ''}${x.marks.includes('月破') ? '・實破' : ''}`);
@@ -10291,8 +10351,9 @@ const LY_INST=`【解讀要求】
    - 日沖：靜爻旺相逢沖為暗動，靜爻休囚逢沖為日破，動爻逢沖為沖散。
    - 月合、日合：靜爻逢合為合起，動爻逢合為合絆，要待沖開。
    - 化空、化月破不作無用論，應在沖空、實空、實破之時。
+   - 入墓：旺相者非真墓，休囚又被克而入墓者才是；墓神被日月動爻沖破者亦非真。土爻逢巳日，得日月動爻生扶者論生不論絕。
    - 變爻只能生克本位的動爻，不能生克其他爻；六神只作輔助，不單憑六神定吉凶。
-6. 只使用資料包中的盤面資料，不要自行改卦、重排納甲或補算未列的伏神與神煞；資訊不足之處請直接說明無法據此判斷。資料包已列出的「伏神能否出現」「原神、忌神的有力與無力」「三合局」「逐日關係表」是程式依原文條目比對的事實，請逐項採用；符合有利與不利兩邊條目時，兩邊都要寫出再權衡。
+6. 只使用資料包中的盤面資料，不要自行改卦、重排納甲或補算未列的伏神與神煞；資訊不足之處請直接說明無法據此判斷。資料包已列出的「伏神能否出現」「原神、忌神的有力與無力」「三合局」「用神、世爻的墓與絕」「動爻對各爻的生克沖合」「逐日關係表」是程式依原文條目比對的事實，請逐項採用；符合有利與不利兩邊條目時，兩邊都要寫出再權衡。
 7. 結論的依據要互相獨立：同一件事換個名目不能算兩條（例如兄爻發動與兄弟局）；已判定無力的忌神、不作真空以外的旬空等，不能再當成主要依據。「盤面明確支持」至少要兩條獨立依據，否則降為「有一定傾向」。
 8. 點名某一天為應期或轉折時，先寫出逐日關係表中那天的日辰對用神是生、扶、克、沖或值，再寫它沖動或填實了什麼；同一天正反力量都有時，寫成「變化集中」，不要只寫一面。
 9. 我的問題若夾帶期待或預設結論，不要順著說；先看盤面支持哪一邊，再寫反證。
