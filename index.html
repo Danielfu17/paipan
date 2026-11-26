@@ -298,6 +298,12 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
 @keyframes invite{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 .tc.invite::after{content:"點我翻開";position:absolute;left:50%;top:-11px;transform:translateX(-50%);background:#dcb561;color:#1b1406;font-size:11.5px;font-weight:700;border-radius:999px;padding:1px 9px;white-space:nowrap;z-index:3;animation:pop .35s ease}
 /* 白話說明抽屜 */
+#news{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:30;padding:16px}
+#news.on{display:flex}
+#news .box{background:var(--card);border:1px solid var(--line);width:100%;max-width:420px;border-radius:20px;padding:24px 22px 20px;animation:up .3s ease both;text-align:center}
+#news .tag{display:inline-block;font-size:12px;letter-spacing:.1em;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:2px 10px}
+#news h3{margin:12px 0 6px;font-size:22px}
+#news p{margin:6px 0;color:var(--mute);font-size:15px;line-height:1.7}
 #sheet{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:flex-end;justify-content:center;z-index:20}
 #sheet.on{display:flex}
 #sheet .box{background:var(--card);width:100%;max-width:680px;max-height:78vh;overflow:auto;border-radius:20px 20px 0 0;padding:20px 20px 28px;animation:up .3s ease both}
@@ -324,17 +330,19 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
   <p class="lead">排出一份你和 AI 都讀得懂的盤，貼給 Claude 或 ChatGPT，就能得到解讀。不需要懂術語。</p>
   <button class="pick" data-go="ly-ask"><i>☰</i><b class="serif">六爻</b><span>問一件具體的事：成不成、順不順、對方怎麼想。<br>親手擲三枚銅錢六次，得到一個卦。</span></button>
   <button class="pick" data-go="qm-ask"><i>⊞</i><b class="serif">奇門遁甲</b><span>看此刻的整體局勢：該進還是該守、往哪個方向。<br>用起念的這一刻排出九宮盤。</span></button>
+  <button class="pick" data-go="bz-ask"><i>☷</i><b class="serif">八字</b><span>看一個人的命盤，或兩個人的合盤。<br>用出生的年、月、日、時排出四柱。</span></button>
   <button class="pick" data-go="tr-ask"><i>✦</i><b class="serif">塔羅</b><span>看一段關係、一個選擇，或此刻的心境。<br>洗牌後憑直覺抽牌，排成牌陣。</span></button>
   <details class="choose"><summary>不知道選哪個？</summary>
     <div class="cg">
       <p><b>想知道「結果會怎樣、什麼時候」→ 六爻</b><br>一件事、一個對象的成敗與時間。例如：對方會不會回來、這份工作會不會錄取、東西找得回來嗎。應期規則較細，「什麼時候」答得比較具體。</p>
       <p><b>想知道「局勢如何、我該怎麼做」→ 奇門遁甲</b><br>誰強誰弱、該攻該守、選哪個方向與時機。例如：談判或面試怎麼應對、往哪個方向找、合作中誰占上風、要不要現在行動。</p>
       <p><b>牽涉三方以上的人 → 奇門遁甲</b><br>一張盤可以同時看你、對方、關係本身、第三者或競爭者。六爻主要看你和一個對象。</p>
+      <p><b>想看一個人的先天性格與人生走勢，或兩個人合不合 → 八字</b><br>不問某一件事，而是用出生時間看整體：個性、適合的方向、大運流年。兩人合盤只依古書有記載的方法比對，不打分數。</p>
       <p><b>想看心境、關係的樣貌，或在幾個選項間比較 → 塔羅</b><br>重在呈現狀態與提醒，不講應期。</p>
       <p class="hint">同一件事想再問走向：不必重新起卦或排盤，用結果頁下方的「追問」，沿用同一個卦或同一張盤。傳統上兩者都能問幾乎所有事，以上是各自較擅長之處。</p>
     </div>
   </details>
-  <p class="hint" style="margin-top:22px">僅供文化探索與自我整理參考，重要決定請回到現實資訊。<br>本站以 Google Analytics（使用 cookie）統計使用量，只記錄操作種類，不會送出你的問題、盤面或筆記。<br><a href="liuyao.html" style="color:inherit">六爻介紹</a>・<a href="qimen.html" style="color:inherit">奇門遁甲介紹</a>・<a href="tarot.html" style="color:inherit">塔羅介紹</a>・<a href="rules.html" style="color:inherit">排盤規則與標記定義</a></p>
+  <p class="hint" style="margin-top:22px">僅供文化探索與自我整理參考，重要決定請回到現實資訊。<br>本站以 Google Analytics（使用 cookie）統計使用量，只記錄操作種類，不會送出你的問題、盤面或筆記。<br><a href="liuyao.html" style="color:inherit">六爻介紹</a>・<a href="qimen.html" style="color:inherit">奇門遁甲介紹</a>・<a href="bazi.html" style="color:inherit">八字介紹</a>・<a href="tarot.html" style="color:inherit">塔羅介紹</a>・<a href="rules.html" style="color:inherit">排盤規則與標記定義</a></p>
 </section>
 
 <!-- 六爻 1：立問 -->
@@ -419,6 +427,39 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
 <!-- 奇門 2 -->
 <section class="view" id="v-qm-result"><div class="steps"><span class="on"></span><span class="on"></span></div><div class="steplabel">奇門遁甲　第二步・盤成</div><div id="qm-out"></div></section>
 
+<!-- 八字 1：生辰 -->
+<section class="view" id="v-bz-ask">
+  <div class="steps"><span class="on"></span><span></span></div><div class="steplabel">八字　第一步・填寫生辰</div>
+  <h2 class="serif">想看一個人的命盤，還是兩個人的合盤？</h2>
+  <div class="seg" id="bz-mode"><button data-m="one" class="on">單人排盤</button><button data-m="two">兩人合盤</button></div>
+  <textarea id="bz-q" placeholder="想問的方向，例如：我適合往哪個方向發展？（可留空，只排盤）"></textarea>
+  <div class="qhint" id="bz-qhint" hidden></div>
+  <div class="card">
+    <b id="bz-l1">出生資料</b>
+    <label class="f"><span>出生日期與時間（鐘錶時間）</span><input type="datetime-local" id="bz-t1"></label>
+    <label class="chk"><input type="checkbox" id="bz-nh1">不知道出生時辰（只排年、月、日三柱）</label>
+    <div class="hint" style="margin-top:8px">性別（決定大運順逆，以及男命、女命的看法）</div>
+    <div class="seg" id="bz-g1"><button data-g="m">男</button><button data-g="f">女</button></div>
+  </div>
+  <div class="card" id="bz-p2" hidden>
+    <b>對方的出生資料</b>
+    <label class="f"><span>出生日期與時間（鐘錶時間）</span><input type="datetime-local" id="bz-t2"></label>
+    <label class="chk"><input type="checkbox" id="bz-nh2">不知道出生時辰（只排年、月、日三柱）</label>
+    <div class="hint" style="margin-top:8px">性別</div>
+    <div class="seg" id="bz-g2"><button data-g="m">男</button><button data-g="f">女</button></div>
+    <div class="hint">合盤只依古書有記載的方法比對，不打分數，也不用生肖、納音配對。說明見<a href="rules.html#bazi" style="color:inherit">規則頁</a>。</div>
+  </div>
+  <details><summary>進階設定：真太陽時</summary>
+    <label class="chk"><input type="checkbox" id="bz-ts">使用真太陽時（依出生地經度校正時辰）</label>
+    <div class="row"><label class="f grow"><span>出生地經度（台北 121.5）</span><input type="number" id="bz-lng1" value="121.5" step="0.1"></label><label class="f grow" id="bz-lng2-box" hidden><span>對方出生地經度</span><input type="number" id="bz-lng2" value="121.5" step="0.1"></label></div>
+    <div class="hint">出生時間接近兩個時辰的交界（例如 12:55）時，真太陽時可能讓時柱換一個。不確定時兩種都排來比較。</div>
+  </details>
+  <div style="margin-top:22px"><button class="btn wide" id="bz-go">排盤</button></div>
+</section>
+
+<!-- 八字 2 -->
+<section class="view" id="v-bz-result"><div class="steps"><span class="on"></span><span class="on"></span></div><div class="steplabel">八字　第二步・命盤</div><div id="bz-out"></div></section>
+
 <!-- 塔羅 1 -->
 <section class="view" id="v-tr-ask">
   <div class="steps"><span class="on"></span><span></span><span></span></div><div class="steplabel">塔羅　第一步・立問與牌陣</div>
@@ -467,6 +508,14 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
 <section class="view" id="v-hist"><h2 class="serif">我的紀錄</h2><p class="hint">只存在這台裝置的瀏覽器裡。點一筆可重新打開；按右邊的「刪除」可以只刪那一筆。</p><div class="hist" id="hist"></div><button class="btn ghost" id="hist-clear" style="margin-top:16px">清空紀錄</button></section>
 </main>
 <div id="toast" role="status" aria-live="polite"></div>
+<div id="news" role="dialog" aria-modal="true" aria-labelledby="news-t"><div class="box">
+  <span class="tag">新功能</span>
+  <h3 class="serif" id="news-t">八字排盤上線了</h3>
+  <p>輸入出生時間，排出四柱、藏干、十神與大運流年；也可以把兩個人的命盤放在一起看。</p>
+  <p>合盤只依古書有記載的方法比對，不打分數。</p>
+  <button class="btn wide" id="news-go" style="margin-top:14px">去試試看</button>
+  <p style="margin:10px 0 0"><button class="link" id="news-close">之後再說</button></p>
+</div></div>
 <div id="sheet"><div class="box"><div id="sheet-body"></div><button class="btn ghost wide" id="sheet-close" style="margin-top:18px">知道了</button></div></div>
 
 <script>/* lunar-javascript (c) 2018 6tail, MIT License. Full notice: THIRD-PARTY-NOTICES.txt */
@@ -9312,7 +9361,90 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
     };
   }
 
-  const api = { calendar, liuyao, qimen, hexInfo, TRI, TRI_BITS, TRI_XIANG, XIANTIAN, PAL, GAN, ZHI, GAN_WX, ZHI_WX };
+
+  /* ---------- 八字 ----------
+     四柱以 23:00 換日（與六爻、奇門一致）。藏干依通行「本氣、中氣、餘氣」次序。
+     十神以日干為「我」：同我者比劫，我生者食傷，我克者財，克我者官殺，生我者印；陰陽同為偏、異為正。 */
+  const CANG = { 子: '癸', 丑: '己癸辛', 寅: '甲丙戊', 卯: '乙', 辰: '戊乙癸', 巳: '丙庚戊', 午: '丁己', 未: '己丁乙', 申: '庚壬戊', 酉: '辛', 戌: '戊辛丁', 亥: '壬甲' };
+  const ganWx = g => GAN_WX[GAN.indexOf(g)], zhiWx = z => ZHI_WX[ZHI.indexOf(z)], ganYang = g => GAN.indexOf(g) % 2 === 0;
+  function shiShen(me, g) {
+    const a = ganWx(me), b = ganWx(g), same = ganYang(me) === ganYang(g);
+    if (a === b) return same ? '比肩' : '劫財';
+    if (sheng(a, b)) return same ? '食神' : '傷官';
+    if (ke(a, b)) return same ? '偏財' : '正財';
+    if (ke(b, a)) return same ? '七殺' : '正官';
+    return same ? '偏印' : '正印';
+  }
+  // 月令旺衰：當令者旺，令生者相，生令者休，克令者囚，令克者死（四季月以土為令）
+  const wangOf = (wx, mz) => { const m = zhiWx(mz); return wx === m ? '旺' : sheng(m, wx) ? '相' : sheng(wx, m) ? '休' : ke(wx, m) ? '囚' : '死'; };
+  const DISHI_T = { 长生: '長生', 冠带: '冠帶', 临官: '臨官', 养: '養', 绝: '絕' };
+  const dishiT = s => DISHI_T[s] || s;
+  const NY_T = { 炉: '爐', 剑: '劍', 锋: '鋒', 头: '頭', 涧: '澗', 蜡: '蠟', 杨: '楊', 雳: '靂', 长: '長', 灯: '燈', 驿: '驛', 钗: '釵', 钏: '釧' };
+  const nyT = s => s.replace(/[炉剑锋头涧蜡杨雳长灯驿钗钏]/g, c => NY_T[c]);
+  const GAN_HE = { 甲: '己', 己: '甲', 乙: '庚', 庚: '乙', 丙: '辛', 辛: '丙', 丁: '壬', 壬: '丁', 戊: '癸', 癸: '戊' };
+  const GAN_HE_WX = { 甲己: '土', 乙庚: '金', 丙辛: '水', 丁壬: '木', 戊癸: '火' };
+  const ZHI_HAI = { 子: '未', 未: '子', 丑: '午', 午: '丑', 寅: '巳', 巳: '寅', 卯: '辰', 辰: '卯', 申: '亥', 亥: '申', 酉: '戌', 戌: '酉' };
+  const SANHE = [['申子辰', '水'], ['亥卯未', '木'], ['寅午戌', '火'], ['巳酉丑', '金']];
+  const SANHUI = [['寅卯辰', '木'], ['巳午未', '火'], ['申酉戌', '金'], ['亥子丑', '水']];
+  // 刑：子卯相刑；寅巳申、丑戌未為三刑；辰午酉亥自刑
+  const XING = [['子', '卯'], ['寅', '巳'], ['巳', '申'], ['寅', '申'], ['丑', '戌'], ['戌', '未'], ['丑', '未']];
+  function baziRelations(cols) {
+    const R = [], g = cols.map(c => c.gan), z = cols.map(c => c.zhi), n = cols.map(c => c.name);
+    for (let i = 0; i < cols.length; i++) for (let j = i + 1; j < cols.length; j++) {
+      if (GAN_HE[g[i]] === g[j]) R.push(`天干五合：${n[i]}干${g[i]}與${n[j]}干${g[j]}相合（合化${GAN_HE_WX[[g[i], g[j]].sort((a, b) => GAN.indexOf(a) - GAN.indexOf(b)).join('')]}，是否化成由解讀者判斷）`);
+      if (HE[z[i]] === z[j]) R.push(`地支六合：${n[i]}支${z[i]}與${n[j]}支${z[j]}`);
+      if (chong(z[i]) === z[j]) R.push(`地支六沖：${n[i]}支${z[i]}與${n[j]}支${z[j]}`);
+      if (ZHI_HAI[z[i]] === z[j]) R.push(`地支相害：${n[i]}支${z[i]}與${n[j]}支${z[j]}`);
+      if (XING.some(([a, b]) => (a === z[i] && b === z[j]) || (a === z[j] && b === z[i]))) R.push(`地支相刑：${n[i]}支${z[i]}與${n[j]}支${z[j]}`);
+      if (z[i] === z[j] && '辰午酉亥'.includes(z[i])) R.push(`地支自刑：${n[i]}支與${n[j]}支同為${z[i]}`);
+    }
+    [[SANHE, '三合'], [SANHUI, '三會']].forEach(([T, nm]) => T.forEach(([s, w]) => {
+      const have = [...s].filter(c => z.includes(c));
+      if (have.length === 3) R.push(`地支${nm}：${s}全，成${w}局（${[...s].map(c => n[z.indexOf(c)] + '支').join('、')}）`);
+      else if (nm === '三合' && have.length === 2 && have.includes(s[1])) R.push(`地支半合：${have.join('')}（${s}${w}局缺${[...s].find(c => !have.includes(c))}）`);
+    }));
+    return R;
+  }
+  // t: {y,m,d,h,mi}；opt: {male:true/false, hourKnown:true/false}
+  function bazi(t, opt) {
+    opt = opt || {};
+    const known = opt.hourKnown !== false;
+    const tt = known ? t : Object.assign({}, t, { h: 12, mi: 0 });
+    const solar = Solar.fromYmdHms(tt.y, tt.m, tt.d, tt.h, tt.mi, 0), lunar = solar.getLunar(), ec = lunar.getEightChar();
+    ec.setSect(1);
+    const P = [['年', ec.getYear(), ec.getYearDiShi()], ['月', ec.getMonth(), ec.getMonthDiShi()], ['日', ec.getDay(), ec.getDayDiShi()], ['時', ec.getTime(), ec.getTimeDiShi()]];
+    const me = ec.getDay()[0], mz = ec.getMonth()[1];
+    const cols = P.filter(([n]) => known || n !== '時').map(([n, gz, ds]) => ({
+      name: n, gz, gan: gz[0], zhi: gz[1], ganWx: ganWx(gz[0]), zhiWx: zhiWx(gz[1]),
+      ganShen: n === '日' ? '日主' : shiShen(me, gz[0]),
+      cang: [...CANG[gz[1]]].map((c, i) => ({ gan: c, wx: ganWx(c), shen: shiShen(me, c), qi: ['本氣', '中氣', '餘氣'][i] })),
+      diShi: dishiT(ds), wang: wangOf(ganWx(gz[0]), mz),
+    }));
+    const xk = xunOf(ec.getDay()), kong = xk.kong;
+    const out = {
+      t, known, male: !!opt.male, me, meWx: ganWx(me), meYang: ganYang(me), meWang: wangOf(ganWx(me), mz), monthZhi: mz,
+      cols, kong, kongIn: cols.filter(c => kong.includes(c.zhi)).map(c => c.name + '支' + c.zhi),
+      rel: baziRelations(cols), nayin: cols.map(c => c.name + '柱' + nyT({ 年: ec.getYearNaYin(), 月: ec.getMonthNaYin(), 日: ec.getDayNaYin(), 時: ec.getTimeNaYin() }[c.name])),
+      lunar: `${lunar.getYearInGanZhi()}年 ${s2t(lunar.getMonthInChinese())}月${s2t(lunar.getDayInChinese())}`,
+    };
+    // 透干：月令藏干有哪些透出天干（子平取格看月令所藏、透出者）
+    out.monthTou = [...CANG[mz]].map((c, i) => ({ gan: c, shen: shiShen(me, c), qi: ['本氣', '中氣', '餘氣'][i], tou: cols.filter(x => x.name !== '日' && x.gan === c).map(x => x.name + '干') }));
+    // 十神統計：天干透出、地支本氣、中氣餘氣分開計數，不加權
+    const S = {};
+    const add = (s, k, where) => { (S[s] = S[s] || { 透干: [], 本氣: [], 中餘氣: [] })[k].push(where); };
+    cols.forEach(c => { if (c.name !== '日') add(c.ganShen, '透干', c.name + '干' + c.gan); c.cang.forEach((x, i) => add(x.shen, i === 0 ? '本氣' : '中餘氣', c.name + '支' + c.zhi + '藏' + x.gan)); });
+    out.shenCount = S;
+    // 大運（男陽女陰順行，反之逆行；由 lunar-javascript 依節氣計算起運）
+    if (opt.male !== undefined && opt.male !== null) {
+      const yun = ec.getYun(opt.male ? 1 : 0);
+      out.yun = { forward: yun.isForward(), startY: yun.getStartYear(), startM: yun.getStartMonth(), startD: yun.getStartDay(),
+        list: yun.getDaYun().slice(1, 9).map(d => ({ gz: d.getGanZhi(), age: d.getStartAge(), year: d.getStartYear(), ganShen: shiShen(me, d.getGanZhi()[0]), zhiShen: shiShen(me, CANG[d.getGanZhi()[1]][0]) })) };
+    }
+    return out;
+  }
+  bazi.shiShen = shiShen; bazi.CANG = CANG; bazi.wangOf = wangOf;
+
+  const api = { calendar, liuyao, qimen, bazi, hexInfo, TRI, TRI_BITS, TRI_XIANG, XIANTIAN, PAL, GAN, ZHI, GAN_WX, ZHI_WX };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.Paipan = api;
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
@@ -10203,20 +10335,20 @@ function ctaCard(id,what){return `<div class="card cta"><h3 class="serif">下一
   <button class="btn wide" id="${id}-copy">複製，拿去問 AI</button>
   <div class="after" id="${id}-after">已複製 ✓　現在打開 <a href="https://claude.ai/new" target="_blank" rel="noopener">Claude</a> 或 <a href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT</a>，貼上送出。</div>
   <p class="hint center" style="margin:12px 0 0"><button class="link" id="${id}-copy-raw">只複製資料包（我想用自己的問法）</button></p></div>
-  <div class="card"><b>想知道接下來怎麼走？</b><div class="hint">${{ly:'同一件事不用重新起卦，用同一個卦追問就好。',qm:'同一件事不用重新起局，用同一張盤追問就好。',tr:'同一件事不用重抽，用同一組牌追問就好。'}[id]}寫下想追問的重點會更有收穫（留空也行），按鈕會複製「原本的資料＋追問指令」。</div>
-  <textarea id="${id}-fq" style="min-height:64px;margin-top:10px" placeholder="${id==='tr'?'例如：未來那張牌指的是什麼事？我可以怎麼做來改變它？':'例如：接下來三個月會怎麼發展？什麼時候會有結果？'}"></textarea>
+  <div class="card"><b>想知道接下來怎麼走？</b><div class="hint">${{ly:'同一件事不用重新起卦，用同一個卦追問就好。',qm:'同一件事不用重新起局，用同一張盤追問就好。',tr:'同一件事不用重抽，用同一組牌追問就好。',bz:'不用重新排盤，用同一張命盤追問就好。'}[id]}寫下想追問的重點會更有收穫（留空也行），按鈕會複製「原本的資料＋追問指令」。</div>
+  <textarea id="${id}-fq" style="min-height:64px;margin-top:10px" placeholder="${id==='tr'?'例如：未來那張牌指的是什麼事？我可以怎麼做來改變它？':id==='bz'?'例如：接下來十年的大運怎麼走？今年要注意什麼？':'例如：接下來三個月會怎麼發展？什麼時候會有結果？'}"></textarea>
   <button class="btn ghost wide" id="${id}-follow" style="margin-top:10px">複製追問走向</button>
   <div class="after" id="${id}-fafter">已複製 ✓　貼回剛才的 AI 對話，或開新對話貼上都可以。</div></div>`}
-const FW={ly:['個卦','起卦','盤面','爻、地支或旬空月破'],qm:['張盤','起局','盤面','宮位、天干地支或空亡馬星'],tr:['組牌','抽牌','牌面','牌位、花色、數字或牌與牌的順序']};
+const FW={bz:['張命盤','排盤','命盤','大運、流年的干支與十神'],ly:['個卦','起卦','盤面','爻、地支或旬空月破'],qm:['張盤','起局','盤面','宮位、天干地支或空亡馬星'],tr:['組牌','抽牌','牌面','牌位、花色、數字或牌與牌的順序']};
 const FOLLOW=id=>{const [a,b,c,d]=FW[id];return `【追問要求】
 這是同一件事的追問，請沿用以上同一${a}，不要重新${b}或改動資料。
 1. 依時間先後，說明這件事接下來可能經過的階段與轉折點，每一階段標明${c}依據。
-2. 推斷可能的時間點（大約何時有變化或結果），並說明是依哪個${d}推得；推不出來就直接說。${id==='tr'?'':'換算成日期時請查上面的【應期換算表】，不要自行推算干支。'}
+2. 推斷可能的時間點（大約何時有變化或結果），並說明是依哪個${d}推得；推不出來就直接說。${id==='tr'||id==='bz'?'':'換算成日期時請查上面的【應期換算表】，不要自行推算干支。'}
 3. 指出目前最有利與最不利的因素，以及我可以怎麼做來順勢或避開。
 4. ${c}看不出來的部分請直接說明，不要補想像；也不要為了回應我的期待而調整結論。${id==='tr'?'\n5. 牌陣中若已有代表未來或結果的牌位，請以那張牌為主軸展開，並說明它和其他牌的關聯；不要另外想像沒抽到的牌。':''}${id==='ly'?'\n5. 點名任何一天時，先查【逐日關係表】寫出那天日辰對用神的生克，再寫它沖動或填實了什麼；同一天正反力量都有時寫成「變化集中」，不要只寫一面。\n6. 資料包列出的伏神能否出現、原神忌神有力無力、三合局，符合有利與不利兩邊條目時兩邊都要寫。結論的依據要互相獨立：同一件事換個名目不能算兩條，已判定無力的忌神不能當主要依據；「盤面明確支持」至少要兩條獨立依據。':''}`};
 function bindCta(id,base,inst,extra){
   track('result',{method:id});
-  inst=inst.replace('【解讀要求】\n','【解讀要求】\n開始之前：如果你可以瀏覽網頁，請先讀過規則頁 '+RULES_URL+'#'+({ly:'liuyao',qm:'qimen',tr:'tarot'}[id])+' ，名詞以該頁的定義為準，並在回答的第一行寫「已查閱規則頁」。如果你無法瀏覽網頁，請在第一行寫「未能查閱規則頁，以下只依資料包」，不要假裝讀過；資料包本身已包含解讀所需的全部盤面資料。\n');
+  inst=inst.replace('【解讀要求】\n','【解讀要求】\n開始之前：如果你可以瀏覽網頁，請先讀過規則頁 '+RULES_URL+'#'+({ly:'liuyao',qm:'qimen',tr:'tarot',bz:'bazi'}[id])+' ，名詞以該頁的定義為準，並在回答的第一行寫「已查閱規則頁」。如果你無法瀏覽網頁，請在第一行寫「未能查閱規則頁，以下只依資料包」，不要假裝讀過；資料包本身已包含解讀所需的全部盤面資料。\n');
   $(`#${id}-copy`).onclick=()=>{track('copy_pack',{method:id,mode:'full'});copyText(base+'\n\n'+inst,$(`#${id}-after`))};
   $(`#${id}-copy-raw`).onclick=()=>{track('copy_pack',{method:id,mode:'raw'});copyText(base,$(`#${id}-after`))};
   $(`#${id}-pack`).value=base+'\n\n'+inst;
@@ -10244,8 +10376,9 @@ function bindNotes(id){
   a.oninput=b.oninput=save;
 }
 function renderH(){const h=loadH(),el=$('#hist');el.innerHTML=h.length?'':'<p class="hint">還沒有紀錄。</p>';
-  h.forEach(r=>{const b=document.createElement('button');b.innerHTML=`<small>${{liuyao:'六爻',qimen:'奇門',tarot:'塔羅'}[r.type]}・${esc(r.time.replace('T',' '))}・${esc(r.title||'')}</small><br>${esc((r.q||'（未填問題）').slice(0,60))}${r.outcome?`<br><small>結果：${esc(r.outcome.slice(0,50))}</small>`:r.note?'<br><small>已記解讀，尚未記結果</small>':''}`;
+  h.forEach(r=>{const b=document.createElement('button');b.innerHTML=`<small>${{liuyao:'六爻',qimen:'奇門',tarot:'塔羅',bazi:'八字'}[r.type]}・${esc(r.time.replace('T',' '))}・${esc(r.title||'')}</small><br>${esc((r.q||'（未填問題）').slice(0,60))}${r.outcome?`<br><small>結果：${esc(r.outcome.slice(0,50))}</small>`:r.note?'<br><small>已記解讀，尚未記結果</small>':''}`;
     b.onclick=()=>{curId=r.id;if(r.type==='tarot'){$('#tr-q').value=r.q;$('#tr-t').value=r.time;$('#tr-a').value=r.a||'';$('#tr-b').value=r.b||'';$('#tr-rev').checked=r.rev!==false;tr.spread=r.spread;tr.cards=r.cards.map(x=>({...x}));tr.how=r.how;renderTr(false)}
+      else if(r.type==='bazi')bzRestore(r);
       else if(r.type==='liuyao'){$('#ly-q').value=r.q;$('#ly-t').value=r.time;ly.lines=r.lines.slice();ly.how=r.how;ly.topic=r.topic||'';ly.who=r.who||'';drawLyTopics();renderLy(false)}
       else{$('#qm-q').value=r.q;$('#qm-t').value=r.time;setFixed(true);$('#qm-y1').value=r.y1||'';$('#qm-y2').value=r.y2||'';$('#qm-b1').checked=!!r.b1;$('#qm-b2').checked=!!r.b2;$('#qm-ts').checked=!!r.ts;$('#qm-lng').value=r.lng;setMethod(r.method||'chaibu');qmTopic=r.topic||'';qmSide=r.side||'';drawQmTopics();renderQm(false)}};
     const row=document.createElement('div');row.className='hrow';b.className='hmain';row.appendChild(b);
@@ -10450,6 +10583,139 @@ function renderLy(save){
   if(save)saveH({type:'liuyao',q,time:$('#ly-t').value,lines:ly.lines.slice(),how:ly.how,topic:ly.topic,who:ly.who,title:b.name+(r.bian?'→'+r.bian.name:'')});
   bindNotes('ly');go('ly-result');
 }
+
+/* ================= 八字 ================= */
+let bzMode='one';const bzG={1:'',2:''};
+function setBzMode(m){bzMode=m;$$('#bz-mode button').forEach(x=>x.classList.toggle('on',x.dataset.m===m));$('#bz-p2').hidden=m!=='two';$('#bz-lng2-box').hidden=m!=='two';$('#bz-l1').textContent=m==='two'?'你的出生資料':'出生資料'}
+function setBzG(i,g){bzG[i]=g;$$('#bz-g'+i+' button').forEach(x=>x.classList.toggle('on',x.dataset.g===g))}
+$$('#bz-mode button').forEach(b=>b.onclick=()=>setBzMode(b.dataset.m));
+[1,2].forEach(i=>$$('#bz-g'+i+' button').forEach(b=>b.onclick=()=>setBzG(i,b.dataset.g)));
+const BZ_SHEN_NOTE={比肩:'同我、同陰陽',劫財:'同我、異陰陽',食神:'我生、同陰陽',傷官:'我生、異陰陽',偏財:'我克、同陰陽',正財:'我克、異陰陽',七殺:'克我、同陰陽',正官:'克我、異陰陽',偏印:'生我、同陰陽',正印:'生我、異陰陽'};
+const bzPos=x=>x.透干.length+x.本氣.length+x.中餘氣.length;
+function bzCalc(i){
+  const v=$('#bz-t'+i).value,nh=$('#bz-nh'+i).checked,g=bzG[i];let t=parseT(v);
+  if(!t){alert(i===1?'請填出生日期與時間（不知道時辰可以隨便填一個時間，再勾選「不知道出生時辰」）':'請填對方的出生日期與時間');return null}
+  if(!g){alert(i===1?'請選性別':'請選對方的性別');return null}
+  let ts=null;const lng=+$('#bz-lng'+i).value;
+  if($('#bz-ts').checked&&!nh){const a=trueSolar(t,lng);ts={clock:v.replace('T',' '),lng,off:a.off};t=a.t}
+  return {v,nh,g,ts,lng,b:E.bazi(t,{male:g==='m',hourKnown:!nh})};
+}
+function bzNowYun(b,ny){if(!b.yun)return null;const L=b.yun.list;let cur=null;L.forEach(d=>{if(d.year<=ny)cur=d});return cur}
+function bzPerson(label,p,nowCal){
+  const b=p.b,L=[],ny=nowCal.t.y;
+  L.push(`【${label}】`);
+  L.push(`性別：${p.g==='m'?'男（男命）':'女（女命）'}`);
+  L.push(`出生時間：${p.nh?p.v.slice(0,10)+'（時辰不明，只排年、月、日三柱）':p.ts?p.ts.clock+'（鐘錶時間）→ 真太陽時 '+`${b.t.y}-${pad(b.t.m)}-${pad(b.t.d)} ${pad(b.t.h)}:${pad(b.t.mi)}，經度 ${p.ts.lng}°，修正 ${p.ts.off>=0?'+':''}${p.ts.off} 分鐘`:p.v.replace('T',' ')+'（鐘錶時間，未校正真太陽時）'}｜農曆 ${b.lunar}`);
+  L.push(`四柱：${b.cols.map(c=>c.name+' '+c.gz).join('｜')}${b.known?'':'｜時 未知'}`);
+  L.push(`日主：${b.me}${b.meWx}（${b.meYang?'陽':'陰'}），生於${b.monthZhi}月；日主在月令的旺衰：${b.meWang}（當令者旺，令生者相，生令者休，克令者囚，令克者死）`);
+  L.push('各柱（天干十神；地支藏干依本氣、中氣、餘氣；地勢是日主在該地支的十二長生；旺衰是該柱天干在月令的狀態）：');
+  b.cols.forEach(c=>L.push(`　${c.name}柱 ${c.gz}｜天干 ${c.gan}${c.ganWx} ${c.ganShen}${c.name==='日'?'':'（月令'+c.wang+'）'}｜地支 ${c.zhi}${c.zhiWx}，藏干 ${c.cang.map(x=>`${x.gan}${x.wx}（${x.qi}・${x.shen}）`).join('、')}｜日主在此：${c.diShi}`));
+  L.push(`月令藏干與透干（子平取格看月令所藏、何者透出天干）：${b.monthTou.map(x=>`${x.gan}（${x.qi}・${x.shen}）${x.tou.length?'透於'+x.tou.join('、'):'未透'}`).join('；')}`);
+  const S=b.shenCount,order=['比肩','劫財','食神','傷官','偏財','正財','七殺','正官','偏印','正印'];
+  L.push('十神分布（只列位置，不加權、不打分）：');
+  order.forEach(k=>{const x=S[k];L.push(`　${k}：${x?['透干','本氣','中餘氣'].map(w=>x[w].length?w+' '+x[w].join('、'):'').filter(Boolean).join('；'):'無'}`)});
+  const wx={};b.cols.forEach(c=>{wx[c.ganWx]=(wx[c.ganWx]||0)+1;wx[c.cang[0].wx]=(wx[c.cang[0].wx]||0)+1});
+  L.push(`五行個數（天干＋地支本氣，共 ${b.cols.length*2} 字，不加權）：${'木火土金水'.split('').map(w=>w+(wx[w]||0)).join('、')}`);
+  L.push(`命局內的干支關係（字面關係，作用由解讀者判斷）：${b.rel.length?b.rel.join('；'):'無'}`);
+  L.push(`空亡（依日柱旬空）：${b.kong}；命局中落空亡的地支：${b.kongIn.length?b.kongIn.join('、'):'無'}`);
+  L.push(`納音：${b.nayin.join('、')}`);
+  if(b.yun){const y=b.yun,cur=bzNowYun(b,ny);
+    L.push(`大運：${y.forward?'順行':'逆行'}（男命陽年、女命陰年順行，反之逆行），約出生後 ${y.startY} 年 ${y.startM} 個月 ${y.startD} 天起運${p.nh?'（時辰不明，起運時間以當天中午估算）':''}`);
+    y.list.forEach(d=>L.push(`　${d.gz}｜${d.age} 歲起（${d.year} 年）｜天干 ${d.gz[0]} ${d.ganShen}，地支 ${d.gz[1]} 本氣 ${d.zhiShen}${cur&&cur.gz===d.gz&&cur.year===d.year?'｜目前所行大運':''}`));
+  }
+  const yg=nowCal.pillars.year;
+  L.push(`流年：${ny} 年 ${yg}｜天干 ${yg[0]} ${E.bazi.shiShen(b.me,yg[0])}，地支 ${yg[1]} 本氣 ${E.bazi.shiShen(b.me,E.bazi.CANG[yg[1]][0])}（流年以立春換年）`);
+  return L;
+}
+function bzSpouse(p,who){
+  const b=p.b,male=p.g==='m',ks=male?['正財','偏財']:['正官','七殺'],L=[];
+  const pos=k=>{const x=b.shenCount[k];return x&&bzPos(x)?['透干','本氣','中餘氣'].map(w=>x[w].length?w+' '+x[w].join('、'):'').filter(Boolean).join('；'):'命局中沒有'};
+  const day=b.cols.find(c=>c.name==='日');
+  L.push(`　${who}（${male?'男命，以財為妻':'女命，以官為夫'}）：${ks.map(k=>k+'：'+pos(k)).join('｜')}`);
+  L.push(`　${who}的日支（夫妻宮）：${day.zhi}，本氣 ${day.cang[0].gan} ${day.cang[0].shen}${b.kongIn.some(x=>x.startsWith('日支'))?'，落空亡':'，不落空亡'}`);
+  return L;
+}
+function bzHe(p1,p2){
+  const L=[],sh=(p,ks)=>ks.map(k=>{const x=p.b.shenCount[k]||{透干:[],本氣:[],中餘氣:[]};return `${k}：透干 ${x.透干.length}（${x.透干.join('、')||'無'}）、本氣 ${x.本氣.length}（${x.本氣.join('、')||'無'}）、中餘氣 ${x.中餘氣.length}（${x.中餘氣.join('、')||'無'}）`}).join('；');
+  const mz=p=>{const c=p.b.cols.find(c=>c.name==='月');return `月令本氣 ${c.cang[0].gan} 為${c.cang[0].shen}`};
+  const man=[p1,p2].find(p=>p.g==='m'),wo=[p1,p2].find(p=>p.g==='f'),nm=p=>p===p1?'你':'對方';
+  L.push('【合盤比對】');
+  L.push('依據：〔神峰通考・男女合婚說〕「但当看男命，带比肩劫财重者，必择妇命带伤官食神重者配之。若妇命带伤官食神重者，必择男命带比肩劫财重者配之。此系合婚之正理。」');
+  L.push('「重」怎麼算，原文沒有說明。下面只列事實，不加權、不打分：天干透出幾個、地支本氣幾個、中氣餘氣幾個，以及月令本氣是什麼。');
+  if(man&&wo){
+    L.push(`　男命（${nm(man)}）比肩、劫財：${sh(man,['比肩','劫財'])}｜${mz(man)}${man.b.known?'':'｜時柱未知，可能少算'}`);
+    L.push(`　女命（${nm(wo)}）食神、傷官：${sh(wo,['食神','傷官'])}｜${mz(wo)}${wo.b.known?'':'｜時柱未知，可能少算'}`);
+  }else{
+    L.push('　兩人性別相同。原文以男命、女命立論，下面兩個方向都列出，是否適用由解讀者說明。');
+    [p1,p2].forEach(p=>L.push(`　${nm(p)}：比肩、劫財：${sh(p,['比肩','劫財'])}｜食神、傷官：${sh(p,['食神','傷官'])}｜${mz(p)}${p.b.known?'':'｜時柱未知，可能少算'}`));
+  }
+  L.push('配偶星與夫妻宮（各看各的盤，依《淵海子平》論妻妾、婦人總訣等單盤條文）：');
+  bzSpouse(p1,'你').forEach(x=>L.push(x));bzSpouse(p2,'對方').forEach(x=>L.push(x));
+  L.push('本資料包刻意不列：兩人之間的干支合沖（目前查到的古書沒有用於合婚）；生肖、納音、年命九宮、孤辰寡宿、生月妨夫妨妻等合婚法（〔協紀辨方書・卷三十六〕辨其為術士妄說）；任何配對分數或機率。');
+  return L;
+}
+function bzPack(q,p1,p2,nowCal){
+  const L=[];
+  L.push(p2?'【八字合盤資料包】':'【八字排盤資料包】');
+  L.push(`所問之事：${q||'（未填）'}`);
+  {const x=leadLine(q);if(x)L.push(x)}
+  L.push(`排盤時間：${nowCal.solar}`);
+  L.push('排盤規則：四柱以立春換年、節氣換月、23:00 換日；藏干依本氣、中氣、餘氣；十神以日干為「我」；大運由節氣計算起運。');
+  L.push('');
+  bzPerson(p2?'你':'命主',p1,nowCal).forEach(x=>L.push(x));
+  if(p2){L.push('');bzPerson('對方',p2,nowCal).forEach(x=>L.push(x));L.push('');bzHe(p1,p2).forEach(x=>L.push(x))}
+  L.push('');
+  L.push(rulesLine('bazi'));
+  return L.join('\n');
+}
+const BZ_INST=`【解讀要求】
+請依據以上八字資料，以傳統子平法為我解讀：
+1. 只使用資料包中的命盤資料，不要自行重排四柱、改動藏干或十神。時柱未知時不要假設時辰，凡牽涉時柱的判斷都要說明無法判定。
+2. 先判斷日主強弱：依月令旺衰、日主在各地支的地勢與通根、天干比劫印的幫扶、財官食傷的洩耗，逐項寫出依據。
+3. 取格局與用神：先看月令所藏、哪些透出天干，說明你取的格局、用神與喜忌，並寫出理由；古書說法不同時兩說並列。
+4. 命局內的干支合沖刑害與空亡，依資料包所列判斷其作用，不要只看字面。
+5. 大運與流年：依資料包列出的干支與十神，說明對用神的喜忌；不要自行推算資料包沒有列出的年份干支。
+6. 每個論點盡量附古籍出處（書名、篇名與原文）；沒有原文依據的，標為〔推論〕。
+7. 不要給分數、百分比或機率，不要說命中注定、一定如何的話。健康、法律、財務等重大決定，提醒回到現實資訊。
+8. 我的問題若夾帶期待或預設結論，不要順著說；先看命盤支持哪一邊，再寫反證。
+9. 先用一兩句白話講整體，再分點列依據；術語第一次出現時用一句話解釋。
+10. 交出解讀之前，請開一個子代理（sub-agent）當審稿員，獨立檢查一遍再交給我：這是我明確的要求，我同意你開子代理。你的環境不能開子代理時，就自己換個角度再審一輪；不論哪一種，都在最後寫明審稿方式與結果。`;
+const BZ_HE_INST=`
+11. 這是兩人合盤：只依資料包的【合盤比對】與兩人各自的配偶星、夫妻宮判斷。不要給配對分數；不要用生肖、納音、年命九宮合婚；不要用兩人之間的干支合沖作依據，除非你能引出古籍原文。比肩劫財、食神傷官「重不重」，要說明你怎麼判斷，並承認原文沒有標準。`;
+function renderBz(save){
+  const q=$('#bz-q').value.trim(),p1=bzCalc(1);if(!p1)return;
+  const p2=bzMode==='two'?bzCalc(2):null;if(bzMode==='two'&&!p2)return;
+  const nowT=parseT(nowLocal()),nowCal=E.calendar(nowT);
+  const tbl=(p,who)=>{const b=p.b;return `<div class="card"><b>${who}</b><div class="hint">${p.g==='m'?'男命':'女命'}・${p.nh?p.v.slice(0,10)+'・時辰不明':p.v.replace('T',' ')+(p.ts?'（真太陽時 '+pad(b.t.h)+':'+pad(b.t.mi)+'）':'')}・農曆 ${b.lunar}</div>
+    <div class="gua-wrap"><table class="gua serif" style="min-width:0;text-align:center"><tr><th></th>${b.cols.map(c=>`<th>${c.name}柱</th>`).join('')}${b.known?'':'<th>時柱</th>'}</tr>
+    <tr><td class="hint">十神</td>${b.cols.map(c=>`<td>${c.ganShen}</td>`).join('')}${b.known?'':'<td class="hint">未知</td>'}</tr>
+    <tr><td class="hint">天干</td>${b.cols.map(c=>`<td style="font-size:22px">${cGan(c.gan)}</td>`).join('')}${b.known?'':'<td></td>'}</tr>
+    <tr><td class="hint">地支</td>${b.cols.map(c=>`<td style="font-size:22px">${cZhi(c.zhi)}</td>`).join('')}${b.known?'':'<td></td>'}</tr>
+    <tr><td class="hint">藏干</td>${b.cols.map(c=>`<td style="white-space:normal">${c.cang.map(x=>cGan(x.gan)+'<small class="hint">'+x.shen+'</small>').join('<br>')}</td>`).join('')}${b.known?'':'<td></td>'}</tr>
+    <tr><td class="hint">地勢</td>${b.cols.map(c=>`<td>${c.diShi}</td>`).join('')}${b.known?'':'<td></td>'}</tr></table></div>
+    <div class="chips"><span class="chip">日主 <b>${b.me}${b.meWx}</b></span><span class="chip">月令 ${b.meWang}</span><span class="chip">空亡 ${b.kong}</span>${b.yun?`<span class="chip">${b.yun.forward?'順':'逆'}行・約 ${b.yun.startY} 歲起運</span>`:''}</div>
+    ${b.yun?`<div class="hint">大運：${b.yun.list.map(d=>`${d.gz}（${d.age}歲）`).join('・')}</div>`:''}</div>`};
+  const pack=bzPack(q,p1,p2,nowCal);
+  const b=p1.b;
+  $('#bz-out').innerHTML=`
+  <div class="card reveal">
+    <div class="kicker">${p2?'兩人的合盤':'你的命盤'}</div>
+    <div class="name serif">${b.cols.map(c=>c.gz).join(' ')}${b.known?'':' <small class="hint">時柱未知</small>'}${p2?`<br><span class="arrow" style="font-size:.6em">與</span><br>${p2.b.cols.map(c=>c.gz).join(' ')}${p2.b.known?'':' <small class="hint">時柱未知</small>'}`:''}</div>
+    <div class="sub">${p2?'只依古書有記載的方法比對，不打分數。':'四柱、藏干、十神與大運都已排好，複製資料包請 AI 解讀。'}</div>
+    ${q?`<div class="hint">所問：${esc(q)}</div>`:''}
+  </div>
+  ${ctaCard('bz',p2?'這份合盤的資料包':'這張命盤的資料包')}
+  ${tbl(p1,p2?'你':'命盤')}${p2?tbl(p2,'對方'):''}
+  <div class="card"><details><summary>預覽要給 AI 的文字（可修改）</summary><textarea class="pack" id="bz-pack" spellcheck="false"></textarea></details></div>
+  ${notesCard('bz')}
+  <div class="row" style="margin-top:18px"><button class="btn ghost grow" data-go="bz-ask">重新填寫</button></div>`;
+  bindCta('bz',pack,BZ_INST+(p2?BZ_HE_INST:''));
+  if(save)saveH({type:'bazi',q,time:p1.v,mode:bzMode,p1:{v:p1.v,nh:p1.nh,g:p1.g,lng:p1.lng},p2:p2?{v:p2.v,nh:p2.nh,g:p2.g,lng:p2.lng}:null,ts:$('#bz-ts').checked,title:b.cols.map(c=>c.gz).join(' ')+(p2?' ／ '+p2.b.cols.map(c=>c.gz).join(' '):'')});
+  bindNotes('bz');go('bz-result');
+}
+function bzRestore(r){setBzMode(r.mode||'one');$('#bz-q').value=r.q||'';$('#bz-ts').checked=!!r.ts;
+  [[1,r.p1],[2,r.p2]].forEach(([i,p])=>{if(!p)return;$('#bz-t'+i).value=p.v;$('#bz-nh'+i).checked=!!p.nh;setBzG(i,p.g);$('#bz-lng'+i).value=p.lng||121.5});renderBz(false)}
+$('#bz-go').onclick=()=>renderBz(true);
 
 /* ================= 奇門 ================= */
 let qmFixed=false, qmMethod='chaibu', qmTopic='', qmSide='';
@@ -10876,7 +11142,21 @@ function renderTr(save){
 
 drawBuild();drawMan();tickNow();drawQmTopics();drawLyTopics();
 /* 入口頁的直達連結：./#ly-ask、./#qm-ask、./#tr-ask */
-const goHash=()=>{const h0=location.hash.slice(1);if(/^(ly|qm|tr)-ask$/.test(h0))go(h0)};goHash();window.addEventListener('hashchange',goHash);
+/* 重大更新公告：每個瀏覽器只跳一次；直接連到某個功能、或已經用過八字的人不跳 */
+const NEWS_ID='bazi-2026-11',NEWS_K='paipan-news';
+const newsMark=()=>{try{localStorage.setItem(NEWS_K,NEWS_ID)}catch(e){}};
+function newsClose(how){$('#news').classList.remove('on');newsMark();track('news',{news:NEWS_ID,action:how})}
+$('#news-go').onclick=()=>{newsClose('go');go('bz-ask')};
+$('#news-close').onclick=()=>newsClose('later');
+$('#news').onclick=e=>{if(e.target.id==='news')newsClose('backdrop')};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#news').classList.contains('on'))newsClose('esc')});
+(function(){
+  let seen;try{seen=localStorage.getItem(NEWS_K)}catch(e){return}
+  if(seen===NEWS_ID)return;
+  if(/^#(ly|qm|tr|bz)-ask$/.test(location.hash)||loadH().some(r=>r.type==='bazi')){newsMark();return}
+  setTimeout(()=>{if($('#v-home').classList.contains('on')){$('#news').classList.add('on');$('#news-go').focus();track('news',{news:NEWS_ID,action:'show'})}},700);
+})();
+const goHash=()=>{const h0=location.hash.slice(1);if(/^(ly|qm|tr|bz)-ask$/.test(h0))go(h0)};goHash();window.addEventListener('hashchange',goHash);
 })();
 </script>
 </body>
