@@ -14,24 +14,31 @@ if(location.hostname==='danielfu17.github.io'){window.dataLayer=window.dataLayer
 <meta property="og:type" content="website">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script>try{if(localStorage.getItem("paipan-theme")==="paper")document.documentElement.dataset.theme="paper"}catch(e){}</script>
 <style>
-body{margin:0;background:#0e1122;color:#f0e7d3;font:16px/1.8 -apple-system,"PingFang TC","Noto Sans TC",sans-serif}
+/* 與主站共用「夜墨金／宣紙朱紅」兩個色調，讀同一個 localStorage 設定 */
+:root{--bg:#0e1122;--ink:#f0e7d3;--text:#d9d1c0;--accent:#dcb561;--accent-ink:#0e1122;--line:#2d3356;--mute:#9a94ad;color-scheme:dark}
+:root[data-theme=paper]{--bg:#f5eee0;--ink:#2a2420;--text:#3b332c;--accent:#a8322a;--accent-ink:#fff;--line:#e2d6c0;--mute:#6f6353;color-scheme:light}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.8 -apple-system,"PingFang TC","Noto Sans TC",sans-serif}
 main{max-width:720px;margin:0 auto;padding:24px 18px 80px}
-h1,h2,h3{font-family:"Songti TC","Noto Serif TC",serif;letter-spacing:.04em}
+h1,h2,h3{font-family:"Songti TC","Songti SC","Noto Serif TC","Noto Serif CJK TC","Source Han Serif TC","PMingLiU","STSong",serif;letter-spacing:.04em;text-wrap:balance}
+p,li{text-wrap:pretty}
 h1{font-size:30px;margin:14px 0 8px;line-height:1.4}
-h2{font-size:21px;margin:40px 0 8px;padding-top:14px;border-top:1px solid #2d3356;color:#dcb561}
+h2{font-size:21px;margin:40px 0 8px;padding-top:14px;border-top:1px solid var(--line);color:var(--accent)}
 h3{font-size:17px;margin:20px 0 4px}
-p,li{color:#d9d1c0}
-a{color:#dcb561}
+p,li{color:var(--text)}
+a{color:var(--accent)}
 .lead{font-size:17px}
-.cta{display:inline-block;margin:18px 0 6px;padding:13px 34px;border-radius:999px;background:#dcb561;color:#0e1122;font-weight:600;text-decoration:none;font-size:17px}
-.note{color:#9a94ad;font-size:14.5px}
-nav{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.cta{display:inline-block;margin:18px 0 6px;padding:13px 34px;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-weight:600;text-decoration:none;font-size:17px}
+.note{color:var(--mute);font-size:14.5px}
+.tb{background:none;border:0;color:var(--mute);font:inherit;font-size:14.5px;text-decoration:underline;text-underline-offset:4px;padding:4px;cursor:pointer}
+.tb:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+nav{display:flex;justify-content:space-between;flex-wrap:wrap;align-items:center;gap:8px}
 </style>
 </head>
 <body>
 <main>
-<nav><a href="./">← 問卦首頁</a><span class="note">其他方法：<a href="liuyao.html">六爻</a>・<a href="qimen.html">奇門遁甲</a>・<a href="tarot.html">塔羅</a></span></nav>
+<nav><a href="./">← 問卦首頁</a><span class="note">其他方法：<a href="liuyao.html">六爻</a>・<a href="qimen.html">奇門遁甲</a>・<a href="tarot.html">塔羅</a>　<button class="tb" id="tb"></button></span></nav>
 <h1>八字排盤・命盤與合盤</h1>
 <p class="lead">八字（四柱）用出生的年、月、日、時排出命盤，看一個人的先天性格、適合的方向與大運流年；也可以把兩個人的命盤放在一起比對。這裡幫你把盤排好，整理成一份 AI 讀得懂的資料包。</p>
 <a class="cta" href="./#bz-ask">開始排盤</a>
@@ -49,5 +56,6 @@ nav{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
 <p style="margin-top:36px"><a class="cta" href="./#bz-ask">開始排盤</a></p>
 <p class="note" style="margin-top:30px">僅供文化探索與自我整理參考，重要決定請回到現實資訊。<br><a href="rules.html">排盤規則與標記定義</a>・<a href="https://github.com/Danielfu17/paipan">原始碼</a></p>
 </main>
+<script>(function(){var r=document.documentElement,b=document.getElementById("tb");function t(){b.textContent=r.dataset.theme==="paper"?"☾ 深色":"☀ 淺色"}t();b.onclick=function(){if(r.dataset.theme==="paper"){delete r.dataset.theme;try{localStorage.setItem("paipan-theme","night")}catch(e){}}else{r.dataset.theme="paper";try{localStorage.setItem("paipan-theme","paper")}catch(e){}}t()}})()</script>
 </body>
 </html>

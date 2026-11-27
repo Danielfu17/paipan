@@ -21,39 +21,46 @@ if(location.hostname==='danielfu17.github.io'){window.dataLayer=window.dataLayer
 :root{--bg:#0e1122;--bg2:#1b2145;--card:#171b31;--ink:#f0e7d3;--mute:#9a94ad;--line:#2d3356;--accent:#dcb561;--accent-ink:#1b1406;--soft:#20254a;--red:#f08a6e;--gold:#dcb561;
 --wood:#7fd3a0;--fire:#f58b7b;--earth:#dcb878;--metal:#ecd27a;--water:#8fbcf5}
 /* 宣紙朱紅 */
-:root[data-theme=paper]{--bg:#f5eee0;--bg2:#fbf6ea;--card:#fffaf0;--ink:#2a2420;--mute:#8a7d6d;--line:#e2d6c0;--accent:#a8322a;--accent-ink:#fff;--soft:#f7e8e0;--red:#a8322a;--gold:#b08a2e;
+:root[data-theme=paper]{--bg:#f5eee0;--bg2:#fbf6ea;--card:#fffaf0;--ink:#2a2420;--mute:#6f6353;--line:#e2d6c0;--accent:#a8322a;--accent-ink:#fff;--soft:#f7e8e0;--red:#a8322a;--gold:#b08a2e;
 --wood:#2e7d4f;--fire:#c0392b;--earth:#8a6a2f;--metal:#a07d1c;--water:#2c5f9e}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html{scroll-behavior:smooth;background:var(--bg)}
 body{margin:0;min-height:100vh;background:radial-gradient(ellipse 120% 70% at 50% -10%,var(--bg2) 0%,var(--bg) 62%) no-repeat var(--bg);color:var(--ink);font:16px/1.7 -apple-system,"PingFang TC","Noto Sans TC",sans-serif;-webkit-tap-highlight-color:transparent}
-.serif{font-family:"Songti TC","Noto Serif TC","PMingLiU",serif}
+.serif{font-family:"Songti TC","Songti SC","Noto Serif TC","Noto Serif CJK TC","Source Han Serif TC","PMingLiU","STSong",serif}
 button{font:inherit;color:inherit;cursor:pointer}
 .top{max-width:680px;margin:0 auto;padding:16px 18px 0;display:flex;justify-content:space-between;align-items:center}
 .brand{background:none;border:0;font-size:20px;letter-spacing:.3em;padding:4px 0}
 .link{background:none;border:0;color:var(--mute);text-decoration:underline;text-underline-offset:4px;padding:4px}
 main{max-width:680px;margin:0 auto;padding:6px 18px 80px}
-.view{display:none;animation:rise .45s ease both}
+.view{display:none}
 .view.on{display:block}
 @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 h1{font-size:32px;line-height:1.35;margin:36px 0 10px;letter-spacing:.06em}
 h2{font-size:24px;line-height:1.4;margin:22px 0 8px;letter-spacing:.04em}
 .lead{color:var(--mute);margin:0 0 22px}
+h1,h2,h3{text-wrap:balance}
+p,.hint,.sub{text-wrap:pretty}
+.lead{text-wrap:balance}
 .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;margin-top:16px}
-.pick{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;margin-top:14px;transition:transform .15s,border-color .15s,box-shadow .15s}
-.pick:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:0 8px 24px -14px var(--accent)}
-.pick b{display:block;font-size:22px;letter-spacing:.1em}
-.pick span{color:var(--mute);font-size:14.5px}
-.pick i{float:right;font-style:normal;font-size:34px;line-height:1;color:var(--accent);opacity:.8}
+.pick{display:grid;grid-template-columns:56px 1fr;gap:20px;align-items:center;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);border-radius:0;padding:24px 2px}
+.pick:last-of-type{border-bottom:1px solid var(--line)}
+.pick svg{width:56px;height:56px;color:var(--accent);overflow:visible}
+.pick b{display:block;font-size:24px;letter-spacing:.12em;transition:color .15s}
+.pick:hover b{color:var(--accent)}
+.pick span{display:block;margin-top:2px;color:var(--mute);font-size:14.5px}
+.pick .mv{fill:var(--red)}
 .steps{display:flex;gap:6px;margin:20px 0 0}
 .steps span{flex:1;height:4px;border-radius:4px;background:var(--line)}
 .steps span.on{background:var(--accent)}
-.steplabel{font-size:13px;color:var(--mute);margin-top:8px;letter-spacing:.1em}
+.steplabel{font-size:13px;color:var(--mute);margin-top:8px}
 :root{color-scheme:dark}:root[data-theme=paper]{color-scheme:light}
 input[type=datetime-local]{cursor:pointer}input[type=datetime-local]::-webkit-calendar-picker-indicator{cursor:pointer;opacity:.9}
 textarea,input[type=number],input[type=text],select,input[type=datetime-local]{width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:inherit}
 textarea{resize:vertical;min-height:92px;font-size:17px}
 textarea:focus,input:focus{outline:2px solid var(--accent);outline-offset:1px}
+button:focus-visible,summary:focus-visible,a:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+.btn:focus-visible,.seg button:focus-visible,.topics button:focus-visible{border-radius:999px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;background:var(--accent);color:var(--accent-ink);padding:14px 26px;border-radius:999px;font-weight:600;font-size:17px;transition:transform .12s,opacity .2s}
 .btn:active{transform:scale(.97)}
 .btn.wide{width:100%}
@@ -121,13 +128,12 @@ label.f>span{display:block;font-size:13.5px;color:var(--mute);margin-bottom:4px}
 .pair button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
 @media (max-width:520px){.mcoins{gap:6px}.pair{gap:3px}.pair button{padding:9px 0;font-size:14px}}
 /* 結果 */
-.reveal{text-align:center;padding:26px 16px}
-.reveal .kicker{font-size:13px;letter-spacing:.3em;color:var(--mute)}
-.reveal .name{font-size:34px;letter-spacing:.12em;margin:6px 0 2px}
+.reveal{text-align:center;padding:34px 16px 28px}
+.reveal .name{font-size:40px;letter-spacing:.12em;margin:0 0 6px}
 .reveal .sub{color:var(--mute);font-size:14.5px}
-.twohex{display:flex;justify-content:center;align-items:center;gap:22px;margin:18px 0 6px}
-.hexg{display:flex;flex-direction:column-reverse;gap:7px;width:104px}
-.hexg span{height:11px;border-radius:2px;background:var(--ink);animation:draw .5s ease both;transform-origin:left}
+.twohex{display:flex;justify-content:center;align-items:center;gap:28px;margin:22px 0 8px}
+.hexg{display:flex;flex-direction:column-reverse;gap:9px;width:132px}
+.hexg span{height:14px;border-radius:2px;background:var(--ink);animation:draw .5s ease both;transform-origin:left}
 .hexg span.yin{background:linear-gradient(90deg,var(--ink) 0 42%,transparent 42% 58%,var(--ink) 58%)}
 .hexg span.mv{background:var(--red)}
 .hexg span.yin.mv{background:linear-gradient(90deg,var(--red) 0 42%,transparent 42% 58%,var(--red) 58%)}
@@ -141,7 +147,7 @@ label.f>span{display:block;font-size:13.5px;color:var(--mute);margin-bottom:4px}
 .after a{color:var(--accent);font-weight:600}
 .pillars{display:flex;gap:8px;justify-content:center;margin:12px 0 4px}
 .pillars div{text-align:center;border:1px solid var(--line);border-radius:10px;padding:6px 12px;font-size:21px;line-height:1.3;background:var(--card)}
-.pillars small{display:block;font-size:11px;color:var(--mute)}
+.pillars small{display:block;font-size:12px;color:var(--mute)}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0;justify-content:center}
 .chip{border:1px solid var(--line);border-radius:8px;padding:2px 9px;font-size:13px;background:var(--card)}
 .chip b{color:var(--accent)}
@@ -150,6 +156,9 @@ table.gua{border-collapse:collapse;width:100%;min-width:560px;font-size:15.5px}
 table.gua th{font-size:12px;color:var(--mute);font-weight:400;text-align:left;padding:4px 8px;border-bottom:1px solid var(--line)}
 table.gua td{padding:9px 8px;border-bottom:1px dashed var(--line);white-space:nowrap;vertical-align:middle}
 table.gua tr.sub{display:none}
+table.gua.ctr th,table.gua.ctr td{text-align:center}
+table.gua.ctr th:first-child,table.gua.ctr td:first-child{text-align:left}
+.card>details:first-child{margin-top:0}
 @media (max-width:560px){
  table.gua{min-width:0;font-size:14.5px}
  table.gua th,table.gua td{padding-left:3px;padding-right:3px}
@@ -165,18 +174,18 @@ table.gua tr.tap{cursor:pointer}
 table.gua tr.tap:hover td{background:var(--soft)}
 .mvm{color:var(--red);font-weight:700;margin-left:6px}
 .sy{display:inline-block;min-width:1.4em;color:var(--red);font-weight:700}
-.note{font-size:12px;color:var(--mute);white-space:normal}
+.note{font-size:13px;color:var(--mute);white-space:normal}
 .fu{font-size:13px;color:var(--mute)}
 .qgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:14px auto 6px;max-width:560px}
-.qc{border:1px solid var(--line);border-radius:12px;padding:8px 10px;min-height:132px;background:var(--card);display:grid;grid-template-columns:1fr auto;grid-template-rows:auto 1fr 1fr auto;column-gap:6px;font-size:16px;text-align:left;transition:transform .12s,border-color .12s}
-button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
+.qc{border:1px solid var(--line);border-radius:12px;padding:8px 10px;min-height:132px;background:var(--card);display:grid;grid-template-columns:1fr auto;grid-template-rows:auto 1fr 1fr auto;column-gap:6px;font-size:16px;text-align:left;transition:border-color .12s}
+button.qc:hover{border-color:var(--accent)}
 .qc .god{color:var(--mute);font-size:13px}
-.qc .mk{font-size:11px;color:var(--red);text-align:right}
+.qc .mk{font-size:12px;color:var(--red);text-align:right}
 .qc .gan{font-size:20px;text-align:right;font-weight:600}
-.qc .pn{grid-column:1/3;font-size:11px;color:var(--mute);border-top:1px dashed var(--line);margin-top:4px;padding-top:2px}
+.qc .pn{grid-column:1/3;font-size:12px;color:var(--mute);border-top:1px dashed var(--line);margin-top:4px;padding-top:2px}
 .qc.zf{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
 .qc .gate{font-weight:600}
-@media (max-width:520px){.qc{min-height:112px;padding:6px;font-size:14px}.qc .gan{font-size:17px}.pillars div{padding:4px 9px;font-size:18px}h1{font-size:27px}.reveal .name{font-size:28px}}
+@media (max-width:520px){.qc{min-height:112px;padding:6px;font-size:14px}.qc .gan{font-size:17px}.pillars div{padding:4px 9px;font-size:18px}h1{font-size:27px}.reveal .name{font-size:32px}}
 .pack{font:12.5px/1.55 ui-monospace,Menlo,monospace;min-height:260px;white-space:pre;margin-top:10px}
 /* 塔羅 */
 .opt{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-top:8px}
@@ -300,12 +309,11 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
 @keyframes invite{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 .tc.invite::after{content:"點我翻開";position:absolute;left:50%;top:-11px;transform:translateX(-50%);background:#dcb561;color:#1b1406;font-size:11.5px;font-weight:700;border-radius:999px;padding:1px 9px;white-space:nowrap;z-index:3;animation:pop .35s ease}
 /* 白話說明抽屜 */
-#news{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:30;padding:16px}
-#news.on{display:flex}
-#news .box{background:var(--card);border:1px solid var(--line);width:100%;max-width:420px;border-radius:20px;padding:24px 22px 20px;animation:up .3s ease both;text-align:center}
-#news .tag{display:inline-block;font-size:12px;letter-spacing:.1em;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:2px 10px}
-#news h3{margin:12px 0 6px;font-size:22px}
-#news p{margin:6px 0;color:var(--mute);font-size:15px;line-height:1.7}
+#news{display:none;margin:0 0 6px;padding:14px 16px;border-left:3px solid var(--accent);background:var(--soft);border-radius:0 12px 12px 0}
+#news.on{display:block}
+#news b{font-size:16px}
+#news p{margin:4px 0 0;color:var(--mute);font-size:14.5px;line-height:1.7}
+#news .row{margin-top:8px;gap:16px}
 #sheet{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:flex-end;justify-content:center;z-index:20}
 #sheet.on{display:flex}
 #sheet .box{background:var(--card);width:100%;max-width:680px;max-height:78vh;overflow:auto;border-radius:20px 20px 0 0;padding:20px 20px 28px;animation:up .3s ease both}
@@ -319,6 +327,9 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
 .hist .hdel{flex:none;background:transparent;border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:13px;color:var(--mute)}
 .hist .hdel.arm{border-color:var(--red);color:var(--red);font-weight:600}
 .hist small{color:var(--mute)}
+.foot{display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:10px;font-size:14px}
+.foot a{color:var(--mute);text-decoration:underline;text-underline-offset:4px;padding:4px 0}
+.foot a:hover{color:var(--accent)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -328,12 +339,17 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
 
 <!-- 首頁 -->
 <section class="view on" id="v-home">
+  <div id="news" role="note">
+    <b class="serif" id="news-t">八字排盤上線了</b>
+    <p>輸入出生時間，排出四柱、藏干、十神與大運流年；也可以把兩個人的命盤放在一起看。合盤只依古書有記載的方法比對，不打分數。</p>
+    <div class="row"><button class="link" id="news-go">去試試看</button><button class="link" id="news-close">不再提醒</button></div>
+  </div>
   <h1 class="serif">心裡有事，<br>靜下來問一卦。</h1>
   <p class="lead">排出一份你和 AI 都讀得懂的盤，貼給 Claude 或 ChatGPT，就能得到解讀。不需要懂術語。</p>
-  <button class="pick" data-go="ly-ask"><i>☰</i><b class="serif">六爻</b><span>問一件具體的事：成不成、順不順、對方怎麼想。<br>親手擲三枚銅錢六次，得到一個卦。</span></button>
-  <button class="pick" data-go="qm-ask"><i>⊞</i><b class="serif">奇門遁甲</b><span>看此刻的整體局勢：該進還是該守、往哪個方向。<br>用起念的這一刻排出九宮盤。</span></button>
-  <button class="pick" data-go="bz-ask"><i>☷</i><b class="serif">八字</b><span>看一個人的命盤，或兩個人的合盤。<br>用出生的年、月、日、時排出四柱。</span></button>
-  <button class="pick" data-go="tr-ask"><i>✦</i><b class="serif">塔羅</b><span>看一段關係、一個選擇，或此刻的心境。<br>洗牌後憑直覺抽牌，排成牌陣。</span></button>
+  <button class="pick" data-go="ly-ask"><svg viewBox="0 0 56 56" aria-hidden="true" fill="currentColor"><rect x="4" y="6" width="48" height="5"/><rect x="4" y="16" width="20" height="5"/><rect x="32" y="16" width="20" height="5"/><rect x="4" y="26" width="48" height="5"/><rect x="4" y="36" width="20" height="5"/><rect x="32" y="36" width="20" height="5"/><rect class="mv" x="4" y="46" width="48" height="5"/></svg><div><b class="serif">六爻</b><span>問一件具體的事：成不成、順不順、對方怎麼想。<br>親手擲三枚銅錢六次，得到一個卦。</span></div></button>
+  <button class="pick" data-go="qm-ask"><svg viewBox="0 0 56 56" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="48" height="48"/><path d="M20 4v48M36 4v48M4 20h48M4 36h48"/><rect x="21" y="21" width="14" height="14" fill="currentColor" stroke="none"/></svg><div><b class="serif">奇門遁甲</b><span>看此刻的整體局勢：該進還是該守、往哪個方向。<br>用起念的這一刻排出九宮盤。</span></div></button>
+  <button class="pick" data-go="bz-ask"><svg viewBox="0 0 56 56" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="10" height="48"/><rect x="17" y="4" width="10" height="48"/><rect x="30" y="4" width="10" height="48"/><rect x="43" y="4" width="10" height="48"/><path d="M4 28h10M17 28h10M30 28h10M43 28h10"/></svg><div><b class="serif">八字</b><span>看一個人的命盤，或兩個人的合盤。<br>用出生的年、月、日、時排出四柱。</span></div></button>
+  <button class="pick" data-go="tr-ask"><svg viewBox="0 0 56 56" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><rect x="12" y="2" width="32" height="52" rx="3"/><rect x="16.5" y="6.5" width="23" height="43" rx="1" stroke-width="1"/><circle cx="28" cy="28" r="10.5" stroke-width="1.2"/><path d="M28 17.5l2.4 7.9 7.9 2.6-7.9 2.6L28 38.5l-2.4-7.9L17.7 28l7.9-2.6z" fill="currentColor" stroke="none"/><circle cx="28" cy="11.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="28" cy="44.5" r="1.3" fill="currentColor" stroke="none"/></svg><div><b class="serif">塔羅</b><span>看一段關係、一個選擇，或此刻的心境。<br>洗牌後憑直覺抽牌，排成牌陣。</span></div></button>
   <details class="choose"><summary>不知道選哪個？</summary>
     <div class="cg">
       <p><b>想知道「結果會怎樣、什麼時候」→ 六爻</b><br>一件事、一個對象的成敗與時間。例如：對方會不會回來、這份工作會不會錄取、東西找得回來嗎。應期規則較細，「什麼時候」答得比較具體。</p>
@@ -344,7 +360,8 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
       <p class="hint">同一件事想再問走向：不必重新起卦或排盤，用結果頁下方的「追問」，沿用同一個卦或同一張盤。傳統上兩者都能問幾乎所有事，以上是各自較擅長之處。</p>
     </div>
   </details>
-  <p class="hint" style="margin-top:22px">僅供文化探索與自我整理參考，重要決定請回到現實資訊。<br>本站以 Google Analytics（使用 cookie）統計使用量，只記錄操作種類，不會送出你的問題、盤面或筆記。<br><a href="liuyao.html" style="color:inherit">六爻介紹</a>・<a href="qimen.html" style="color:inherit">奇門遁甲介紹</a>・<a href="bazi.html" style="color:inherit">八字介紹</a>・<a href="tarot.html" style="color:inherit">塔羅介紹</a>・<a href="rules.html" style="color:inherit">排盤規則與標記定義</a></p>
+  <p class="hint" style="margin-top:28px">僅供文化探索與自我整理參考，重要決定請回到現實資訊。<br>本站以 Google Analytics（使用 cookie）統計使用量，只記錄操作種類，不會送出你的問題、盤面或筆記。</p>
+  <nav class="foot" aria-label="站內說明"><a href="liuyao.html">六爻介紹</a><a href="qimen.html">奇門遁甲介紹</a><a href="bazi.html">八字介紹</a><a href="tarot.html">塔羅介紹</a><a href="rules.html">排盤規則與標記定義</a></nav>
 </section>
 
 <!-- 六爻 1：立問 -->
@@ -510,14 +527,6 @@ button.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
 <section class="view" id="v-hist"><h2 class="serif">我的紀錄</h2><p class="hint">只存在這台裝置的瀏覽器裡。點一筆可重新打開；按右邊的「刪除」可以只刪那一筆。</p><div class="hist" id="hist"></div><button class="btn ghost" id="hist-clear" style="margin-top:16px">清空紀錄</button></section>
 </main>
 <div id="toast" role="status" aria-live="polite"></div>
-<div id="news" role="dialog" aria-modal="true" aria-labelledby="news-t"><div class="box">
-  <span class="tag">新功能</span>
-  <h3 class="serif" id="news-t">八字排盤上線了</h3>
-  <p>輸入出生時間，排出四柱、藏干、十神與大運流年；也可以把兩個人的命盤放在一起看。</p>
-  <p>合盤只依古書有記載的方法比對，不打分數。</p>
-  <button class="btn wide" id="news-go" style="margin-top:14px">去試試看</button>
-  <p style="margin:10px 0 0"><button class="link" id="news-close">之後再說</button></p>
-</div></div>
 <div id="sheet"><div class="box"><div id="sheet-body"></div><button class="btn ghost wide" id="sheet-close" style="margin-top:18px">知道了</button></div></div>
 
 <script>/* lunar-javascript (c) 2018 6tail, MIT License. Full notice: THIRD-PARTY-NOTICES.txt */
@@ -10335,10 +10344,10 @@ function copyText(text,after){
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done,fb);else fb();
 }
 function ctaCard(id,what){return `<div class="card cta"><h3 class="serif">下一步：請 AI 幫你解讀</h3><p>按下按鈕會複製「解讀指令＋${what}」，貼到你習慣的 AI 對話框送出即可，之後可以繼續追問。</p>
-  ${id==='ly'||id==='bz'?`<label class="chk" style="margin:0 0 12px"><input type="checkbox" id="${id}-strict">嚴格審稿：請 AI 另開一個審稿員再檢查一遍（較慢，常多花 15 分鐘以上；目前 Claude 才做得到）</label>`:''}
   <button class="btn wide" id="${id}-copy">複製，拿去問 AI</button>
   <div class="after" id="${id}-after">已複製 ✓　現在打開 <a href="https://claude.ai/new" target="_blank" rel="noopener">Claude</a> 或 <a href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT</a>，貼上送出。</div>
-  <p class="hint center" style="margin:12px 0 0"><button class="link" id="${id}-copy-raw">只複製資料包（我想用自己的問法）</button></p></div>
+  <p class="hint center" style="margin:12px 0 0"><button class="link" id="${id}-copy-raw">只複製資料包（我想用自己的問法）</button></p>
+  ${id==='ly'||id==='bz'?`<details${strictOn()?' open':''}><summary>進階：請 AI 再審一遍</summary><label class="chk"><input type="checkbox" id="${id}-strict">嚴格審稿：請 AI 另開一個審稿員再檢查一遍（較慢，常多花 15 分鐘以上；目前 Claude 才做得到）</label></details>`:''}</div>
   <div class="card"><b>想知道接下來怎麼走？</b><div class="hint">${{ly:'同一件事不用重新起卦，用同一個卦追問就好。',qm:'同一件事不用重新起局，用同一張盤追問就好。',tr:'同一件事不用重抽，用同一組牌追問就好。',bz:'不用重新排盤，用同一張命盤追問就好。'}[id]}寫下想追問的重點會更有收穫（留空也行），按鈕會複製「原本的資料＋追問指令」。</div>
   <textarea id="${id}-fq" style="min-height:64px;margin-top:10px" placeholder="${id==='tr'?'例如：未來那張牌指的是什麼事？我可以怎麼做來改變它？':id==='bz'?'例如：接下來十年的大運怎麼走？今年要注意什麼？':'例如：接下來三個月會怎麼發展？什麼時候會有結果？'}"></textarea>
   <button class="btn ghost wide" id="${id}-follow" style="margin-top:10px">複製追問走向</button>
@@ -10566,7 +10575,6 @@ function renderLy(save){
   const pack=lyPack(q,cal,r), nMove=mvs.filter(Boolean).length;
   $('#ly-out').innerHTML=`
   <div class="card reveal">
-    <div class="kicker">你得到的卦</div>
     <div class="name serif">${b.name}${r.bian?`<span class="arrow"> → </span>${r.bian.name}`:''}</div>
     <div class="sub">${r.bian?`本卦是現在的狀況，變卦是事情演變的方向。有 ${nMove} 個動爻（紅色）。`:'六爻都安靜，沒有動爻：事情目前變化不大，以現況論。'}</div>
     <div class="twohex"><div>${hexg(b.bits,mvs)}<div class="hexcap">本卦・${b.palace}宮</div></div>${r.bian?`<span class="arrow">→</span><div>${hexg(r.bian.bits)}<div class="hexcap">變卦</div></div>`:''}</div>
@@ -10697,7 +10705,7 @@ function renderBz(save){
   const p2=bzMode==='two'?bzCalc(2):null;if(bzMode==='two'&&!p2)return;
   const nowT=parseT(nowLocal()),nowCal=E.calendar(nowT);
   const tbl=(p,who)=>{const b=p.b;return `<div class="card"><b>${who}</b><div class="hint">${p.g==='m'?'男命':'女命'}・${p.nh?p.v.slice(0,10)+'・時辰不明':p.v.replace('T',' ')+(p.ts?'（真太陽時 '+pad(b.t.h)+':'+pad(b.t.mi)+'）':'')}・農曆 ${b.lunar}</div>
-    <div class="gua-wrap"><table class="gua serif" style="min-width:0;text-align:center"><tr><th></th>${b.cols.map(c=>`<th>${c.name}柱</th>`).join('')}${b.known?'':'<th>時柱</th>'}</tr>
+    <div class="gua-wrap"><table class="gua ctr serif" style="min-width:0"><tr><th></th>${b.cols.map(c=>`<th>${c.name}柱</th>`).join('')}${b.known?'':'<th>時柱</th>'}</tr>
     <tr><td class="hint">十神</td>${b.cols.map(c=>`<td>${c.ganShen}</td>`).join('')}${b.known?'':'<td class="hint">未知</td>'}</tr>
     <tr><td class="hint">天干</td>${b.cols.map(c=>`<td style="font-size:22px">${cGan(c.gan)}</td>`).join('')}${b.known?'':'<td></td>'}</tr>
     <tr><td class="hint">地支</td>${b.cols.map(c=>`<td style="font-size:22px">${cZhi(c.zhi)}</td>`).join('')}${b.known?'':'<td></td>'}</tr>
@@ -10709,7 +10717,6 @@ function renderBz(save){
   const b=p1.b;
   $('#bz-out').innerHTML=`
   <div class="card reveal">
-    <div class="kicker">${p2?'兩人的合盤':'你的命盤'}</div>
     <div class="name serif">${b.cols.map(c=>c.gz).join(' ')}${b.known?'':' <small class="hint">時柱未知</small>'}${p2?`<br><span class="arrow" style="font-size:.6em">與</span><br>${p2.b.cols.map(c=>c.gz).join(' ')}${p2.b.known?'':' <small class="hint">時柱未知</small>'}`:''}</div>
     <div class="sub">${p2?'只依古書有記載的方法比對，不打分數。':'四柱、藏干、十神與大運都已排好，複製資料包請 AI 解讀。'}</div>
     ${q?`<div class="hint">所問：${esc(q)}</div>`:''}
@@ -10871,7 +10878,6 @@ function renderQm(save){
   const pack=qmPack(q,cal,r,ts);
   $('#qm-out').innerHTML=`
   <div class="card reveal">
-    <div class="kicker">此刻的局</div>
     <div class="name serif">${r.yang?'陽':'陰'}遁${JU[r.ju]}局</div>
     <div class="sub">${cal.solar}${ts?'（真太陽時）':''}・${r.run?r.juJq+(r.run.isLeap?'（閏）':''):cal.jieqi}${r.yuan}・${r.method}法</div>
     ${pillarsHtml(cal)}
@@ -11115,7 +11121,6 @@ function renderTr(save){
   const rows=cs.map((c,i)=>`<button type="button" class="trow" data-k="${i}"><b>${i+1}　${esc(trPos(i))}</b>　<span class="serif">${c.zh}</span>${sp.cross===i?'<span class="hint">　橫置</span>':c.rev?'<span class="rv">逆位</span>':''}<small>${c.rev?c.rev_kw:c.up}</small></button>`).join('');
   $('#tr-out').innerHTML=`
   <div class="card reveal">
-    <div class="kicker">你抽到的牌</div>
     <div class="name serif" style="font-size:26px">${sp.name}</div>
     <div class="sub" id="tr-sub">${opened?'點任何一張牌，看它的含義。':'點牌翻開，翻開後再點一次可以看含義。也可以 <button class="link" id="tr-openall">全部翻開</button>'}</div>
     <div class="tgrid" style="grid-template-columns:repeat(${sp.cols},minmax(0,1fr));max-width:${maxw}px">${cs.map(cell).join('')}</div>
@@ -11152,19 +11157,17 @@ function renderTr(save){
 
 drawBuild();drawMan();tickNow();drawQmTopics();drawLyTopics();
 /* 入口頁的直達連結：./#ly-ask、./#qm-ask、./#tr-ask */
-/* 重大更新公告：每個瀏覽器只跳一次；直接連到某個功能、或已經用過八字的人不跳 */
+/* 重大更新公告：首頁頂端的提示，不擋畫面；按過一次、直接連到某個功能、或已經用過八字的人不顯示 */
 const NEWS_ID='bazi-2026-11',NEWS_K='paipan-news';
 const newsMark=()=>{try{localStorage.setItem(NEWS_K,NEWS_ID)}catch(e){}};
 function newsClose(how){$('#news').classList.remove('on');newsMark();track('news',{news:NEWS_ID,action:how})}
 $('#news-go').onclick=()=>{newsClose('go');go('bz-ask')};
 $('#news-close').onclick=()=>newsClose('later');
-$('#news').onclick=e=>{if(e.target.id==='news')newsClose('backdrop')};
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#news').classList.contains('on'))newsClose('esc')});
 (function(){
   let seen;try{seen=localStorage.getItem(NEWS_K)}catch(e){return}
   if(seen===NEWS_ID)return;
   if(/^#(ly|qm|tr|bz)-ask$/.test(location.hash)||loadH().some(r=>r.type==='bazi')){newsMark();return}
-  setTimeout(()=>{if($('#v-home').classList.contains('on')){$('#news').classList.add('on');$('#news-go').focus();track('news',{news:NEWS_ID,action:'show'})}},700);
+  $('#news').classList.add('on');track('news',{news:NEWS_ID,action:'show'});
 })();
 const goHash=()=>{const h0=location.hash.slice(1);if(/^(ly|qm|tr|bz)-ask$/.test(h0))go(h0)};goHash();window.addEventListener('hashchange',goHash);
 })();
