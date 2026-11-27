@@ -49,6 +49,8 @@ h2{font-size:24px;line-height:1.4;margin:22px 0 8px;letter-spacing:.04em}
 .steps span{flex:1;height:4px;border-radius:4px;background:var(--line)}
 .steps span.on{background:var(--accent)}
 .steplabel{font-size:13px;color:var(--mute);margin-top:8px;letter-spacing:.1em}
+:root{color-scheme:dark}:root[data-theme=paper]{color-scheme:light}
+input[type=datetime-local]{cursor:pointer}input[type=datetime-local]::-webkit-calendar-picker-indicator{cursor:pointer;opacity:.9}
 textarea,input[type=number],input[type=text],select,input[type=datetime-local]{width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:inherit}
 textarea{resize:vertical;min-height:92px;font-size:17px}
 textarea:focus,input:focus{outline:2px solid var(--accent);outline-offset:1px}
@@ -10318,6 +10320,7 @@ function go(v){track('step',{step:v});if(v==='ly-cast')qRemind('#ly-qr',$('#ly-q
 document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b)go(b.dataset.go)});
 $('#home-btn').onclick=()=>go('home'); $('#hist-btn').onclick=()=>go('hist');
 function setTheme(t){if(t==='paper')document.documentElement.dataset.theme='paper';else delete document.documentElement.dataset.theme;$('#theme-btn').textContent=t==='paper'?'☾ 深色':'☀ 淺色';try{localStorage.setItem('paipan-theme',t)}catch(e){}}
+document.addEventListener('click',e=>{const t=e.target;if(t.matches&&t.matches('input[type=datetime-local]')&&!t.disabled&&t.showPicker){try{t.showPicker()}catch(_){}}});
 $('#theme-btn').onclick=()=>setTheme(document.documentElement.dataset.theme==='paper'?'night':'paper');
 try{setTheme(localStorage.getItem('paipan-theme')||'night')}catch(e){}
 
@@ -10332,6 +10335,7 @@ function copyText(text,after){
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done,fb);else fb();
 }
 function ctaCard(id,what){return `<div class="card cta"><h3 class="serif">下一步：請 AI 幫你解讀</h3><p>按下按鈕會複製「解讀指令＋${what}」，貼到你習慣的 AI 對話框送出即可，之後可以繼續追問。</p>
+  ${id==='ly'||id==='bz'?`<label class="chk" style="margin:0 0 12px"><input type="checkbox" id="${id}-strict">嚴格審稿：請 AI 另開一個審稿員再檢查一遍（較慢，常多花 15 分鐘以上；目前 Claude 才做得到）</label>`:''}
   <button class="btn wide" id="${id}-copy">複製，拿去問 AI</button>
   <div class="after" id="${id}-after">已複製 ✓　現在打開 <a href="https://claude.ai/new" target="_blank" rel="noopener">Claude</a> 或 <a href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT</a>，貼上送出。</div>
   <p class="hint center" style="margin:12px 0 0"><button class="link" id="${id}-copy-raw">只複製資料包（我想用自己的問法）</button></p></div>
@@ -10346,12 +10350,18 @@ const FOLLOW=id=>{const [a,b,c,d]=FW[id];return `【追問要求】
 2. 推斷可能的時間點（大約何時有變化或結果），並說明是依哪個${d}推得；推不出來就直接說。${id==='tr'||id==='bz'?'':'換算成日期時請查上面的【應期換算表】，不要自行推算干支。'}
 3. 指出目前最有利與最不利的因素，以及我可以怎麼做來順勢或避開。
 4. ${c}看不出來的部分請直接說明，不要補想像；也不要為了回應我的期待而調整結論。${id==='tr'?'\n5. 牌陣中若已有代表未來或結果的牌位，請以那張牌為主軸展開，並說明它和其他牌的關聯；不要另外想像沒抽到的牌。':''}${id==='ly'?'\n5. 點名任何一天時，先查【逐日關係表】寫出那天日辰對用神的生克，再寫它沖動或填實了什麼；同一天正反力量都有時寫成「變化集中」，不要只寫一面。\n6. 資料包列出的伏神能否出現、原神忌神有力無力、三合局，符合有利與不利兩邊條目時兩邊都要寫。結論的依據要互相獨立：同一件事換個名目不能算兩條，已判定無力的忌神不能當主要依據；「盤面明確支持」至少要兩條獨立依據。':''}`};
-function bindCta(id,base,inst,extra){
+const REVIEW_K='paipan-strict';
+const REVIEW={on:'請開一個子代理（sub-agent）當審稿員，獨立檢查一遍再交給我：這是我明確的要求，我同意你開子代理。你的環境不能開子代理時，就自己換個角度再審一輪；不論哪一種，都在最後寫明審稿方式與結果。',off:'自己換個角度再審一輪就好，不必開子代理：把稿子當成別人寫的，逐條確認引文的前提和盤面相符、和資料包的事實一致，並在最後寫明審稿結果。'};
+const strictOn=()=>{try{return localStorage.getItem(REVIEW_K)==='1'}catch(e){return false}};
+function bindCta(id,base,inst0,extra){
+  const sc=$(`#${id}-strict`);let inst;
+  const mk=()=>{inst=inst0.replace('{{REVIEW}}',REVIEW[sc&&sc.checked?'on':'off']);$(`#${id}-pack`).value=base+'\n\n'+inst};
+  if(sc){sc.checked=strictOn();sc.onchange=()=>{try{localStorage.setItem(REVIEW_K,sc.checked?'1':'0')}catch(e){}track('strict',{method:id,on:sc.checked});mk()}}
   track('result',{method:id});
-  inst=inst.replace('【解讀要求】\n','【解讀要求】\n開始之前：如果你可以瀏覽網頁，請先讀過規則頁 '+RULES_URL+'#'+({ly:'liuyao',qm:'qimen',tr:'tarot',bz:'bazi'}[id])+' ，名詞以該頁的定義為準，並在回答的第一行寫「已查閱規則頁」。如果你無法瀏覽網頁，請在第一行寫「未能查閱規則頁，以下只依資料包」，不要假裝讀過；資料包本身已包含解讀所需的全部盤面資料。\n');
-  $(`#${id}-copy`).onclick=()=>{track('copy_pack',{method:id,mode:'full'});copyText(base+'\n\n'+inst,$(`#${id}-after`))};
+  inst0=inst0.replace('【解讀要求】\n','【解讀要求】\n開始之前：如果你可以瀏覽網頁，請先讀過規則頁 '+RULES_URL+'#'+({ly:'liuyao',qm:'qimen',tr:'tarot',bz:'bazi'}[id])+' ，名詞以該頁的定義為準，並在回答的第一行寫「已查閱規則頁」。如果你無法瀏覽網頁，請在第一行寫「未能查閱規則頁，以下只依資料包」，不要假裝讀過；資料包本身已包含解讀所需的全部盤面資料。\n');
+  mk();
+  $(`#${id}-copy`).onclick=()=>{track('copy_pack',{method:id,mode:'full',strict:!!(sc&&sc.checked)});copyText(base+'\n\n'+inst,$(`#${id}-after`))};
   $(`#${id}-copy-raw`).onclick=()=>{track('copy_pack',{method:id,mode:'raw'});copyText(base,$(`#${id}-after`))};
-  $(`#${id}-pack`).value=base+'\n\n'+inst;
   $(`#${id}-follow`).onclick=()=>{track('copy_pack',{method:id,mode:'follow'});const fq=$(`#${id}-fq`).value.trim();
     copyText(base+(extra?'\n\n'+extra:'')+'\n\n'+FOLLOW(id)+(fq?'\n\n我想追問的重點：'+fq:''),$(`#${id}-fafter`))};
 }
@@ -10491,7 +10501,7 @@ const LY_INST=`【解讀要求】
 8. 點名某一天為應期或轉折時，先寫出逐日關係表中那天的日辰對用神是生、扶、克、沖或值，再寫它沖動或填實了什麼；同一天正反力量都有時，寫成「變化集中」，不要只寫一面。
 9. 我的問題若夾帶期待或預設結論，不要順著說；先看盤面支持哪一邊，再寫反證。
 10. 先用一兩句白話講整體態勢，再分點列關鍵依據；術語第一次出現時用一句話解釋。
-11. 交出解讀之前，請開一個子代理（sub-agent）當審稿員，獨立檢查一遍再交給我：這是我明確的要求，我同意你開子代理。你的環境不能開子代理時，就自己換個角度再審一輪；不論哪一種，都在最後寫明審稿方式與結果。`;
+11. 交出解讀之前，{{REVIEW}}`;
 function lyPack(q,cal,r){
   const P=cal.pillars,b=r.ben,L=[];
   L.push('【六爻排盤資料包】');
@@ -10679,7 +10689,7 @@ const BZ_INST=`【解讀要求】
 7. 不要給分數、百分比或機率，不要說命中注定、一定如何的話。健康、法律、財務等重大決定，提醒回到現實資訊。
 8. 我的問題若夾帶期待或預設結論，不要順著說；先看命盤支持哪一邊，再寫反證。
 9. 先用一兩句白話講整體，再分點列依據；術語第一次出現時用一句話解釋。
-10. 交出解讀之前，請開一個子代理（sub-agent）當審稿員，獨立檢查一遍再交給我：這是我明確的要求，我同意你開子代理。你的環境不能開子代理時，就自己換個角度再審一輪；不論哪一種，都在最後寫明審稿方式與結果。`;
+10. 交出解讀之前，{{REVIEW}}`;
 const BZ_HE_INST=`
 11. 這是兩人合盤：只依資料包的【合盤比對】與兩人各自的配偶星、夫妻宮判斷。不要給配對分數；不要用生肖、納音、年命九宮合婚；不要用兩人之間的干支合沖作依據，除非你能引出古籍原文。比肩劫財、食神傷官「重不重」，要說明你怎麼判斷，並承認原文沒有標準。`;
 function renderBz(save){
